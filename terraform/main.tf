@@ -125,4 +125,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
     sku       = "22_04-lts-gen2"
     version   = "latest"
   }
+
+  lifecycle {
+    # cloud-init only runs on first boot. Changes to the bootstrap file must not
+    # recreate an already-provisioned VM; the live host is managed via deploy/.
+    ignore_changes = [custom_data]
+  }
 }

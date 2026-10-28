@@ -24,7 +24,7 @@ users:
     gecos: HealDeploy Service Account
     system: true
     shell: /bin/bash
-    home: /opt/healdeploy
+    homedir: /opt/healdeploy
     lock_passwd: true
 
 write_files:

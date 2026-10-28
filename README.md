@@ -2,7 +2,7 @@
 
 > **A Self-Healing CI/CD Pipeline with Automatic Rollback and Recovery Verification**
 
-[![Phase 3: Planned](https://img.shields.io/badge/Phase%203-Configured%20&%20Validated-yellow.svg)]()
+[![Phase 3: Provisioned & Verified](https://img.shields.io/badge/Phase%203-Provisioned%20%26%20Verified-green.svg)]()
 [![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)]()
 [![Terraform 1.16.6](https://img.shields.io/badge/Terraform-1.16.6-purple.svg)]()
 [![AzureRM ~> 4.0](https://img.shields.io/badge/AzureRM-v4.81.0-blue.svg)]()
@@ -45,7 +45,7 @@ Deployment Health Check & Policy Evaluation
 |:---|:---|:---:|:---|
 | **Phase 1** | Environment Setup & Repo Initialization | ✅ Completed | Tools verified (Python 3.10, Git, Terraform, Azure CLI, Docker), directory layout, virtualenv initialized. |
 | **Phase 2** | Flask Application, Tests & Docker Validation | ✅ Completed | Application factory (`app.app`), home dashboard, `/health` endpoint, 25 unit/integration tests, Dockerfile, cross-platform dependencies. |
-| **Phase 3** | Terraform Infrastructure Configuration | 🟡 Validated (Pending Approval) | Terraform configuration, cloud-init bootstrap, provider lock, 8 planned resources, zero active cloud spend until approved. |
+| **Phase 3** | Terraform Infrastructure Provisioning & Verification | ✅ Completed | 8 Azure resources provisioned in `eastasia`; VM running; SSH/NSG corrected; Nginx and cloud-init verified. See `phase3_validation.md`. |
 | **Phase 4** | Jenkins CI/CD Pipeline | ⏳ Planned | Multi-stage Jenkinsfile for linting, testing, packaging, and zero-downtime deployment. |
 | **Phase 5** | Health Validation & Self-Healing Logic | ⏳ Planned | Automated health probe scripts, rollback triggers, and recovery verification. |
 | **Phase 6** | Failure Injection, Evaluation & Documentation | ⏳ Planned | Synthetic bad release testing, rollback verification logs, demonstration metrics. |
@@ -66,16 +66,33 @@ In Phase 2, the core web application and testing infrastructure were implemented
 
 ---
 
-## 4. Phase 3 Infrastructure Design (Terraform & Azure)
+## 4. Phase 3 Infrastructure (Provisioned & Verified)
 
-In Phase 3, the declarative Infrastructure as Code (IaC) configuration is established under `terraform/`:
+The infrastructure is provisioned in Azure and has been verified end to end. The declarative
+Infrastructure as Code (IaC) configuration remains under `terraform/`. The full verification
+record is in `phase3_validation.md`.
+
+### Live Deployment
+
+| Item | Value |
+|---|---|
+| Resource group | `rg-healdeploy-eastasia` |
+| VM | `vm-healdeploy-prod` (running) |
+| Public IP | `20.205.103.245` (static) |
+| Application URL | http://20.205.103.245/ |
+| Health URL | http://20.205.103.245/health |
+| SSH | `ssh -i ~/.ssh/healdeploy_rsa azureuser@20.205.103.245` |
+
+> Before the first release is deployed in Phase 4, HTTP requests return `502 Bad Gateway`
+> because Nginx is running but Gunicorn is not yet installed under
+> `/opt/healdeploy/current`. This is expected.
 
 ### Resource Architecture
 1. **Resource Group (`rg-healdeploy-eastasia`)**: Dedicated boundary in `eastasia` (policy-allowed student region).
 2. **Virtual Network & Subnet**: `vnet-healdeploy` (`10.0.0.0/16`) and `snet-healdeploy-app` (`10.0.1.0/24`).
 3. **Network Security Group (`nsg-healdeploy`)**:
    - **Port 80 (HTTP)**: Inbound allow from `*` (Internet) for public web access.
-   - **Port 22 (SSH)**: Inbound allow strictly restricted to developer public IP (`allowed_ssh_cidr`).
+   - **Port 22 (SSH)**: Inbound allow strictly restricted to the developer source IP (`allowed_ssh_cidr`, currently `106.76.185.171/32`). This is the address Azure actually receives, which can differ from public IP echo services on some ISPs.
    - **Port 8000 (Gunicorn)**: **Closed to Internet**; strictly bound to `127.0.0.1:8000` on the VM.
 4. **Public IP (`pip-healdeploy-vm`)**: Standard SKU with Static allocation.
 5. **Network Interface (`nic-healdeploy-vm`)**: Connects VM to subnet with static public IP and NSG association.
@@ -196,11 +213,10 @@ terraform plan
 ### Implemented & Validated:
 - Phase 1: Environment, dependencies, `.venv`, Git repository.
 - Phase 2: Flask app, `/health` endpoint, 25 pytest tests, Docker validation.
-- Phase 3: Terraform configuration, cloud-init template, provider lockfile, execution plan (8 resources to add).
+- Phase 3: Azure infrastructure provisioned (8 resources), SSH/NSG corrected, VM reachable, cloud-init and Nginx verified, Terraform converged with no pending changes.
 
 ### Deferred to Future Phases:
-- Infrastructure Provisioning (`terraform apply`): Pending explicit user approval.
-- Jenkins CI/CD pipeline definition (`Jenkinsfile`): **Phase 4**.
+- First application release and Jenkins CI/CD pipeline definition (`Jenkinsfile`): **Phase 4**.
 - Automated rollback scripts, health check polling scripts, and recovery validation logic: **Phase 5**.
 - Fault injection and evaluation metrics: **Phase 6**.
 
