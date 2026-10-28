@@ -1,0 +1,10 @@
+{
+  "startup_grace_seconds": 15,
+  "total_probes": 10,
+  "interval_seconds": 3,
+  "required_successes": 9,
+  "max_p95_latency_ms": 500,
+  "timeout_seconds": 5,
+  "health_path": "/health",
+  "expected_status": "healthy"
+}

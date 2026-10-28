@@ -1,0 +1,11 @@
+workflow-aggregator
+git
+github
+credentials-binding
+ssh-credentials
+ssh-agent
+timestamper
+ws-cleanup
+junit
+pipeline-stage-view
+build-timeout
