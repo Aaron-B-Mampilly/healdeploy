@@ -102,9 +102,13 @@ pipeline {
                     ]) {
                         sh '''
                             set -u
+                            FAULT_MODE="${FAULT_MODE:-}"
                             ARCHIVE="$(cat build/archive-path.txt)"
                             REMOTE_DIR="/tmp/healdeploy-${BUILD_NUMBER}"
                             SSH_OPTS="-i $SSH_KEY -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
+
+                            rm -rf artifacts
+                            mkdir -p artifacts
 
                             ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "rm -rf $REMOTE_DIR && mkdir -p $REMOTE_DIR"
                             scp $SSH_OPTS "$ARCHIVE" deploy/deploy.sh deploy/rollback.sh deploy/health_check.py deploy/health_policy.json "$SSH_USER@$VM_HOST:$REMOTE_DIR/"
@@ -114,8 +118,6 @@ pipeline {
                             DEPLOY_RC=$?
                             set -e
 
-                            rm -rf artifacts
-                            mkdir -p artifacts
                             scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
                             if [ "$DEPLOY_RC" -ne 0 ]; then
                                 scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/incident_report.json" artifacts/incident_report.json 2>/dev/null || true
