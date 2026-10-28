@@ -1,0 +1,85 @@
+# =============================================================================
+# HealDeploy — .gitignore
+# =============================================================================
+
+# --- Python virtual environment ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Python compiled / cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Distribution / packaging ---
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+secrets/
+*.secret
+
+# --- Terraform ---
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+terraform.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+crash.log
+
+# --- Azure / cloud credentials ---
+*.pem
+*.key
+*.pfx
+*.p12
+azure-credentials.json
+service-principal.json
+azure_credentials.json
+
+# --- SSH keys ---
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# --- Jenkins ---
+jenkins_home/
+.jenkins/
+
+# --- Logs ---
+*.log
+logs/
+log/
+
+# --- OS / editor artifacts ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+*~
+
+# --- Temporary files ---
+tmp/
+temp/
+*.tmp
+*.bak

@@ -1,0 +1,10 @@
+# tests/ — pytest Test Suite
+#
+# This directory will contain all automated tests.
+# Populated in Phase 2.
+#
+# Expected structure:
+#   tests/
+#   ├── conftest.py          — pytest fixtures and shared setup
+#   ├── test_app.py          — Flask application unit tests
+#   └── test_health.py       — Health check endpoint tests

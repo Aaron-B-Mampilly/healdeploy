@@ -1,0 +1,16 @@
+# terraform/ — Azure Infrastructure (Terraform)
+#
+# This directory will contain Terraform configuration files.
+# Populated in Phase 3.
+#
+# Expected structure:
+#   terraform/
+#   ├── main.tf              — Core resource definitions (App Service, etc.)
+#   ├── variables.tf         — Input variable declarations
+#   ├── outputs.tf           — Output values (URLs, IDs)
+#   └── providers.tf         — Azure provider configuration
+#
+# NEVER commit:
+#   - terraform.tfvars       (contains secret variable values — in .gitignore)
+#   - *.tfstate              (Terraform state — in .gitignore)
+#   - .terraform/            (local provider cache — in .gitignore)

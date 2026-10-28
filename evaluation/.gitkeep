@@ -1,0 +1,10 @@
+# evaluation/ — Health Check and Validation Scripts
+#
+# This directory will contain the self-healing evaluation logic.
+# Populated in Phase 5.
+#
+# Expected structure:
+#   evaluation/
+#   ├── health_check.py      — HTTP health check against deployed app
+#   ├── thresholds.json      — Configurable pass/fail thresholds
+#   └── evaluate.py          — Aggregates checks, triggers rollback if needed

@@ -1,0 +1,10 @@
+# app/ — Flask Web Application
+#
+# This directory will contain the Flask application source code.
+# Populated in Phase 2.
+#
+# Expected structure:
+#   app/
+#   ├── __init__.py      — Flask app factory
+#   ├── routes.py        — Route definitions
+#   └── config.py        — Configuration (dev/prod/test)

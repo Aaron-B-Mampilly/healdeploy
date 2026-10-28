@@ -1,0 +1,12 @@
+# deploy/ — Deployment and Rollback Scripts
+#
+# This directory will contain shell scripts used by the Jenkins pipeline.
+# Populated in Phase 4.
+#
+# Expected structure:
+#   deploy/
+#   ├── deploy.sh            — Main deployment script
+#   ├── rollback.sh          — Rollback to previous stable release
+#   └── verify_recovery.sh   — Post-rollback recovery verification
+#
+# IMPORTANT: All .sh files use Unix (LF) line endings — enforced by .gitattributes
