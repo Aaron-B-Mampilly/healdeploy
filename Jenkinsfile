@@ -69,6 +69,7 @@ pipeline {
                 sh '''
                     set -e
                     mkdir -p build
+                    rm -f build/*.tar.gz
                     ARCHIVE="build/${APP_NAME}-${RELEASE_ID}.tar.gz"
                     tar -czf "$ARCHIVE" \
                         --exclude='app/__pycache__' \
@@ -105,6 +106,7 @@ pipeline {
                             DEPLOY_RC=$?
                             set -e
 
+                            rm -rf artifacts
                             mkdir -p artifacts
                             scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
                             if [ "$DEPLOY_RC" -ne 0 ]; then
