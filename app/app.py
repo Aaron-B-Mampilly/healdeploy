@@ -23,6 +23,9 @@ Usage (production via Gunicorn on Linux):
 import os
 from flask import Flask, jsonify, render_template
 
+if os.environ.get("HEALDEPLOY_FAULT") == "startup":
+    raise RuntimeError("synthetic startup fault")
+
 
 def create_app(test_config=None):
     """
