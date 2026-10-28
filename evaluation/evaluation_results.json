@@ -1,0 +1,1108 @@
+{
+  "generated_at": "2026-10-28T22:04:55Z",
+  "jenkins_url": "http://localhost:8080",
+  "health_url": "http://20.205.103.245/health",
+  "runs_per_fault": 2,
+  "total_runs": 9,
+  "faults": [
+    {
+      "name": "fault-startup",
+      "job": "healdeploy-fault-startup",
+      "mode": "startup",
+      "description": "Application raises at import time and fails to start."
+    },
+    {
+      "name": "fault-slow",
+      "job": "healdeploy-fault-slow",
+      "mode": "slow",
+      "description": "Health endpoint sleeps for 1s, exceeding the 500ms p95 budget."
+    }
+  ],
+  "runs": [
+    {
+      "fault": "fault-startup",
+      "mode": "startup",
+      "description": "Application raises at import time and fails to start.",
+      "job": "healdeploy-fault-startup",
+      "build_number": 2,
+      "build_result": "FAILURE",
+      "build_url": "http://localhost:8080/job/healdeploy-fault-startup/2/",
+      "build_duration_seconds": 160.4,
+      "events": {
+        "activation": "2026-10-28T21:39:17.217Z",
+        "detection": "2026-10-28T21:40:03.731Z",
+        "recovery": "2026-10-28T21:40:50.241Z",
+        "finished": null
+      },
+      "metrics": {
+        "activation_to_detection_seconds": 46.5,
+        "detection_to_recovery_seconds": 46.5,
+        "activation_to_recovery_seconds": 93.0,
+        "health_check_seconds": 27.0,
+        "build_finish_seconds": null
+      },
+      "incident": {
+        "release_id": "jenkins-2-0b2d1cd",
+        "app_version": "v1.0.2",
+        "failure_reason": "health policy failed for release jenkins-2-0b2d1cd",
+        "detected_at": "2026-10-28T21:39:59Z",
+        "rollback_started_at": "2026-10-28T21:39:59Z",
+        "recovery_completed_at": "2026-10-28T21:40:41Z",
+        "recovered_release": "jenkins-6-5ff39f4",
+        "recovery_verified": true,
+        "final_status": "recovered"
+      },
+      "failed_health": {
+        "passed": false,
+        "successes": 0,
+        "required_successes": 9,
+        "p95_latency_ms": null,
+        "max_p95_latency_ms": 500,
+        "failures": [
+          {
+            "probe": 1,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          },
+          {
+            "probe": 2,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          },
+          {
+            "probe": 3,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          },
+          {
+            "probe": 4,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          },
+          {
+            "probe": 5,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          },
+          {
+            "probe": 6,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          },
+          {
+            "probe": 7,
+            "reasons": [
+              "request error: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          },
+          {
+            "probe": 8,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          },
+          {
+            "probe": 9,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          },
+          {
+            "probe": 10,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.2'"
+            ]
+          }
+        ]
+      },
+      "rollback_health": {
+        "passed": true,
+        "p95_latency_ms": 8.33
+      },
+      "post_recovery_health": {
+        "http_status": 200,
+        "body": {
+          "status": "healthy",
+          "version": "v1.0.6"
+        }
+      }
+    },
+    {
+      "fault": "fault-slow",
+      "mode": "slow",
+      "description": "Health endpoint sleeps for 1s, exceeding the 500ms p95 budget.",
+      "job": "healdeploy-fault-slow",
+      "build_number": 2,
+      "build_result": "FAILURE",
+      "build_url": "http://localhost:8080/job/healdeploy-fault-slow/2/",
+      "build_duration_seconds": 164.9,
+      "events": {
+        "activation": "2026-10-28T21:42:01.510Z",
+        "detection": "2026-10-28T21:42:57.563Z",
+        "recovery": "2026-10-28T21:43:44.074Z",
+        "finished": null
+      },
+      "metrics": {
+        "activation_to_detection_seconds": 56.1,
+        "detection_to_recovery_seconds": 46.5,
+        "activation_to_recovery_seconds": 102.6,
+        "health_check_seconds": 36.0,
+        "build_finish_seconds": null
+      },
+      "incident": {
+        "release_id": "jenkins-2-bbb18ae",
+        "app_version": "v1.0.2",
+        "failure_reason": "health policy failed for release jenkins-2-bbb18ae",
+        "detected_at": "2026-10-28T21:42:53Z",
+        "rollback_started_at": "2026-10-28T21:42:53Z",
+        "recovery_completed_at": "2026-10-28T21:43:35Z",
+        "recovered_release": "jenkins-6-5ff39f4",
+        "recovery_verified": true,
+        "final_status": "recovered"
+      },
+      "failed_health": {
+        "passed": false,
+        "successes": 10,
+        "required_successes": 9,
+        "p95_latency_ms": 1010.0,
+        "max_p95_latency_ms": 500,
+        "failures": []
+      },
+      "rollback_health": {
+        "passed": true,
+        "p95_latency_ms": 8.31
+      },
+      "post_recovery_health": {
+        "http_status": 200,
+        "body": {
+          "status": "healthy",
+          "version": "v1.0.6"
+        }
+      }
+    },
+    {
+      "fault": "fault-500",
+      "mode": "500",
+      "description": "Health endpoint returns HTTP 500.",
+      "job": "healdeploy-fault-500",
+      "build_number": 4,
+      "build_result": "FAILURE",
+      "build_url": "http://localhost:8080/job/healdeploy-fault-500/4/",
+      "build_duration_seconds": 154.8,
+      "events": {
+        "activation": "2026-10-28T21:45:21.533Z",
+        "detection": "2026-10-28T21:46:08.044Z",
+        "recovery": "2026-10-28T21:46:54.557Z",
+        "finished": null
+      },
+      "metrics": {
+        "activation_to_detection_seconds": 46.5,
+        "detection_to_recovery_seconds": 46.5,
+        "activation_to_recovery_seconds": 93.0,
+        "health_check_seconds": 27.0,
+        "build_finish_seconds": null
+      },
+      "incident": {
+        "release_id": "jenkins-4-ebee408",
+        "app_version": "v1.0.4",
+        "failure_reason": "health policy failed for release jenkins-4-ebee408",
+        "detected_at": "2026-10-28T21:46:03Z",
+        "rollback_started_at": "2026-10-28T21:46:03Z",
+        "recovery_completed_at": "2026-10-28T21:46:46Z",
+        "recovered_release": "jenkins-6-5ff39f4",
+        "recovery_verified": true,
+        "final_status": "recovered"
+      },
+      "failed_health": {
+        "passed": false,
+        "successes": 0,
+        "required_successes": 9,
+        "p95_latency_ms": null,
+        "max_p95_latency_ms": 500,
+        "failures": [
+          {
+            "probe": 1,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 2,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 3,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 4,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 5,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 6,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 7,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 8,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 9,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 10,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          }
+        ]
+      },
+      "rollback_health": {
+        "passed": true,
+        "p95_latency_ms": 8.22
+      },
+      "post_recovery_health": {
+        "http_status": 200,
+        "body": {
+          "status": "healthy",
+          "version": "v1.0.6"
+        }
+      }
+    },
+    {
+      "fault": "fault-500",
+      "mode": "500",
+      "description": "Health endpoint returns HTTP 500.",
+      "job": "healdeploy-fault-500",
+      "build_number": 5,
+      "build_result": "FAILURE",
+      "build_url": "http://localhost:8080/job/healdeploy-fault-500/5/",
+      "build_duration_seconds": 154.2,
+      "events": {
+        "activation": "2026-10-28T21:48:14.522Z",
+        "detection": "2026-10-28T21:49:01.033Z",
+        "recovery": "2026-10-28T21:49:47.545Z",
+        "finished": null
+      },
+      "metrics": {
+        "activation_to_detection_seconds": 46.5,
+        "detection_to_recovery_seconds": 46.5,
+        "activation_to_recovery_seconds": 93.0,
+        "health_check_seconds": 27.0,
+        "build_finish_seconds": null
+      },
+      "incident": {
+        "release_id": "jenkins-5-ebee408",
+        "app_version": "v1.0.5",
+        "failure_reason": "health policy failed for release jenkins-5-ebee408",
+        "detected_at": "2026-10-28T21:48:56Z",
+        "rollback_started_at": "2026-10-28T21:48:56Z",
+        "recovery_completed_at": "2026-10-28T21:49:39Z",
+        "recovered_release": "jenkins-6-5ff39f4",
+        "recovery_verified": true,
+        "final_status": "recovered"
+      },
+      "failed_health": {
+        "passed": false,
+        "successes": 0,
+        "required_successes": 9,
+        "p95_latency_ms": null,
+        "max_p95_latency_ms": 500,
+        "failures": [
+          {
+            "probe": 1,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 2,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 3,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 4,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 5,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 6,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 7,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 8,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 9,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 10,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          }
+        ]
+      },
+      "rollback_health": {
+        "passed": true,
+        "p95_latency_ms": 7.84
+      },
+      "post_recovery_health": {
+        "http_status": 200,
+        "body": {
+          "status": "healthy",
+          "version": "v1.0.6"
+        }
+      }
+    },
+    {
+      "fault": "fault-500",
+      "mode": "500",
+      "description": "Health endpoint returns HTTP 500.",
+      "job": "healdeploy-fault-500",
+      "build_number": 6,
+      "build_result": "FAILURE",
+      "build_url": "http://localhost:8080/job/healdeploy-fault-500/6/",
+      "build_duration_seconds": 154.7,
+      "events": {
+        "activation": "2026-10-28T21:51:00.593Z",
+        "detection": "2026-10-28T21:51:47.104Z",
+        "recovery": "2026-10-28T21:52:25.664Z",
+        "finished": null
+      },
+      "metrics": {
+        "activation_to_detection_seconds": 46.5,
+        "detection_to_recovery_seconds": 38.6,
+        "activation_to_recovery_seconds": 85.1,
+        "health_check_seconds": 27.0,
+        "build_finish_seconds": null
+      },
+      "incident": {
+        "release_id": "jenkins-6-ebee408",
+        "app_version": "v1.0.6",
+        "failure_reason": "health policy failed for release jenkins-6-ebee408",
+        "detected_at": "2026-10-28T21:51:42Z",
+        "rollback_started_at": "2026-10-28T21:51:42Z",
+        "recovery_completed_at": "2026-10-28T21:52:24Z",
+        "recovered_release": "jenkins-6-5ff39f4",
+        "recovery_verified": true,
+        "final_status": "recovered"
+      },
+      "failed_health": {
+        "passed": false,
+        "successes": 0,
+        "required_successes": 9,
+        "p95_latency_ms": null,
+        "max_p95_latency_ms": 500,
+        "failures": [
+          {
+            "probe": 1,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 2,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 3,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 4,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 5,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 6,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 7,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 8,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 9,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          },
+          {
+            "probe": 10,
+            "reasons": [
+              "http status 500",
+              "status 'unhealthy'"
+            ]
+          }
+        ]
+      },
+      "rollback_health": {
+        "passed": true,
+        "p95_latency_ms": 8.48
+      },
+      "post_recovery_health": {
+        "http_status": 200,
+        "body": {
+          "status": "healthy",
+          "version": "v1.0.6"
+        }
+      }
+    },
+    {
+      "fault": "fault-startup",
+      "mode": "startup",
+      "description": "Application raises at import time and fails to start.",
+      "job": "healdeploy-fault-startup",
+      "build_number": 3,
+      "build_result": "FAILURE",
+      "build_url": "http://localhost:8080/job/healdeploy-fault-startup/3/",
+      "build_duration_seconds": 156.3,
+      "events": {
+        "activation": "2026-10-28T21:54:02.264Z",
+        "detection": "2026-10-28T21:54:48.771Z",
+        "recovery": "2026-10-28T21:55:27.333Z",
+        "finished": null
+      },
+      "metrics": {
+        "activation_to_detection_seconds": 46.5,
+        "detection_to_recovery_seconds": 38.6,
+        "activation_to_recovery_seconds": 85.1,
+        "health_check_seconds": 28.0,
+        "build_finish_seconds": null
+      },
+      "incident": {
+        "release_id": "jenkins-3-0b2d1cd",
+        "app_version": "v1.0.3",
+        "failure_reason": "health policy failed for release jenkins-3-0b2d1cd",
+        "detected_at": "2026-10-28T21:54:44Z",
+        "rollback_started_at": "2026-10-28T21:54:44Z",
+        "recovery_completed_at": "2026-10-28T21:55:26Z",
+        "recovered_release": "jenkins-6-5ff39f4",
+        "recovery_verified": true,
+        "final_status": "recovered"
+      },
+      "failed_health": {
+        "passed": false,
+        "successes": 0,
+        "required_successes": 9,
+        "p95_latency_ms": null,
+        "max_p95_latency_ms": 500,
+        "failures": [
+          {
+            "probe": 1,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          },
+          {
+            "probe": 2,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          },
+          {
+            "probe": 3,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          },
+          {
+            "probe": 4,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          },
+          {
+            "probe": 5,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          },
+          {
+            "probe": 6,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          },
+          {
+            "probe": 7,
+            "reasons": [
+              "request error: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          },
+          {
+            "probe": 8,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          },
+          {
+            "probe": 9,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          },
+          {
+            "probe": 10,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.3'"
+            ]
+          }
+        ]
+      },
+      "rollback_health": {
+        "passed": true,
+        "p95_latency_ms": 8.58
+      },
+      "post_recovery_health": {
+        "http_status": 200,
+        "body": {
+          "status": "healthy",
+          "version": "v1.0.6"
+        }
+      }
+    },
+    {
+      "fault": "fault-startup",
+      "mode": "startup",
+      "description": "Application raises at import time and fails to start.",
+      "job": "healdeploy-fault-startup",
+      "build_number": 4,
+      "build_result": "FAILURE",
+      "build_url": "http://localhost:8080/job/healdeploy-fault-startup/4/",
+      "build_duration_seconds": 155.1,
+      "events": {
+        "activation": "2026-10-28T21:56:56.075Z",
+        "detection": "2026-10-28T21:57:42.586Z",
+        "recovery": "2026-10-28T21:58:21.142Z",
+        "finished": null
+      },
+      "metrics": {
+        "activation_to_detection_seconds": 46.5,
+        "detection_to_recovery_seconds": 38.6,
+        "activation_to_recovery_seconds": 85.1,
+        "health_check_seconds": 27.0,
+        "build_finish_seconds": null
+      },
+      "incident": {
+        "release_id": "jenkins-4-0b2d1cd",
+        "app_version": "v1.0.4",
+        "failure_reason": "health policy failed for release jenkins-4-0b2d1cd",
+        "detected_at": "2026-10-28T21:57:37Z",
+        "rollback_started_at": "2026-10-28T21:57:37Z",
+        "recovery_completed_at": "2026-10-28T21:58:20Z",
+        "recovered_release": "jenkins-6-5ff39f4",
+        "recovery_verified": true,
+        "final_status": "recovered"
+      },
+      "failed_health": {
+        "passed": false,
+        "successes": 0,
+        "required_successes": 9,
+        "p95_latency_ms": null,
+        "max_p95_latency_ms": 500,
+        "failures": [
+          {
+            "probe": 1,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          },
+          {
+            "probe": 2,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          },
+          {
+            "probe": 3,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          },
+          {
+            "probe": 4,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          },
+          {
+            "probe": 5,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          },
+          {
+            "probe": 6,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          },
+          {
+            "probe": 7,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          },
+          {
+            "probe": 8,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          },
+          {
+            "probe": 9,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          },
+          {
+            "probe": 10,
+            "reasons": [
+              "request error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /health (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 111] Connection refused\"))",
+              "http status None",
+              "status None",
+              "version None != expected 'v1.0.4'"
+            ]
+          }
+        ]
+      },
+      "rollback_health": {
+        "passed": true,
+        "p95_latency_ms": 8.09
+      },
+      "post_recovery_health": {
+        "http_status": 200,
+        "body": {
+          "status": "healthy",
+          "version": "v1.0.6"
+        }
+      }
+    },
+    {
+      "fault": "fault-slow",
+      "mode": "slow",
+      "description": "Health endpoint sleeps for 1s, exceeding the 500ms p95 budget.",
+      "job": "healdeploy-fault-slow",
+      "build_number": 3,
+      "build_result": "FAILURE",
+      "build_url": "http://localhost:8080/job/healdeploy-fault-slow/3/",
+      "build_duration_seconds": 176.1,
+      "events": {
+        "activation": "2026-10-28T22:00:02.561Z",
+        "detection": "2026-10-28T22:00:58.613Z",
+        "recovery": "2026-10-28T22:01:45.130Z",
+        "finished": null
+      },
+      "metrics": {
+        "activation_to_detection_seconds": 56.1,
+        "detection_to_recovery_seconds": 46.5,
+        "activation_to_recovery_seconds": 102.6,
+        "health_check_seconds": 36.0,
+        "build_finish_seconds": null
+      },
+      "incident": {
+        "release_id": "jenkins-3-bbb18ae",
+        "app_version": "v1.0.3",
+        "failure_reason": "health policy failed for release jenkins-3-bbb18ae",
+        "detected_at": "2026-10-28T22:00:54Z",
+        "rollback_started_at": "2026-10-28T22:00:54Z",
+        "recovery_completed_at": "2026-10-28T22:01:36Z",
+        "recovered_release": "jenkins-6-5ff39f4",
+        "recovery_verified": true,
+        "final_status": "recovered"
+      },
+      "failed_health": {
+        "passed": false,
+        "successes": 10,
+        "required_successes": 9,
+        "p95_latency_ms": 1009.95,
+        "max_p95_latency_ms": 500,
+        "failures": []
+      },
+      "rollback_health": {
+        "passed": true,
+        "p95_latency_ms": 7.25
+      },
+      "post_recovery_health": {
+        "http_status": 200,
+        "body": {
+          "status": "healthy",
+          "version": "v1.0.6"
+        }
+      }
+    },
+    {
+      "fault": "fault-slow",
+      "mode": "slow",
+      "description": "Health endpoint sleeps for 1s, exceeding the 500ms p95 budget.",
+      "job": "healdeploy-fault-slow",
+      "build_number": 4,
+      "build_result": "FAILURE",
+      "build_url": "http://localhost:8080/job/healdeploy-fault-slow/4/",
+      "build_duration_seconds": 169.5,
+      "events": {
+        "activation": "2026-10-28T22:03:05.297Z",
+        "detection": "2026-10-28T22:04:01.358Z",
+        "recovery": "2026-10-28T22:04:47.870Z",
+        "finished": null
+      },
+      "metrics": {
+        "activation_to_detection_seconds": 56.1,
+        "detection_to_recovery_seconds": 46.5,
+        "activation_to_recovery_seconds": 102.6,
+        "health_check_seconds": 36.0,
+        "build_finish_seconds": null
+      },
+      "incident": {
+        "release_id": "jenkins-4-bbb18ae",
+        "app_version": "v1.0.4",
+        "failure_reason": "health policy failed for release jenkins-4-bbb18ae",
+        "detected_at": "2026-10-28T22:03:57Z",
+        "rollback_started_at": "2026-10-28T22:03:57Z",
+        "recovery_completed_at": "2026-10-28T22:04:39Z",
+        "recovered_release": "jenkins-6-5ff39f4",
+        "recovery_verified": true,
+        "final_status": "recovered"
+      },
+      "failed_health": {
+        "passed": false,
+        "successes": 10,
+        "required_successes": 9,
+        "p95_latency_ms": 1009.5,
+        "max_p95_latency_ms": 500,
+        "failures": []
+      },
+      "rollback_health": {
+        "passed": true,
+        "p95_latency_ms": 6.97
+      },
+      "post_recovery_health": {
+        "http_status": 200,
+        "body": {
+          "status": "healthy",
+          "version": "v1.0.6"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "fault-startup": {
+      "runs": 3,
+      "failed_builds": 3,
+      "recovered_runs": 3,
+      "activation_to_detection_seconds": {
+        "count": 3,
+        "min": 46.5,
+        "median": 46.5,
+        "mean": 46.5,
+        "max": 46.5
+      },
+      "detection_to_recovery_seconds": {
+        "count": 3,
+        "min": 38.6,
+        "median": 38.6,
+        "mean": 41.2,
+        "max": 46.5
+      },
+      "activation_to_recovery_seconds": {
+        "count": 3,
+        "min": 85.1,
+        "median": 85.1,
+        "mean": 87.7,
+        "max": 93.0
+      },
+      "health_check_seconds": {
+        "count": 3,
+        "min": 27.0,
+        "median": 27.0,
+        "mean": 27.3,
+        "max": 28.0
+      },
+      "build_duration_seconds": {
+        "count": 3,
+        "min": 155.1,
+        "median": 156.3,
+        "mean": 157.3,
+        "max": 160.4
+      }
+    },
+    "fault-slow": {
+      "runs": 3,
+      "failed_builds": 3,
+      "recovered_runs": 3,
+      "activation_to_detection_seconds": {
+        "count": 3,
+        "min": 56.1,
+        "median": 56.1,
+        "mean": 56.1,
+        "max": 56.1
+      },
+      "detection_to_recovery_seconds": {
+        "count": 3,
+        "min": 46.5,
+        "median": 46.5,
+        "mean": 46.5,
+        "max": 46.5
+      },
+      "activation_to_recovery_seconds": {
+        "count": 3,
+        "min": 102.6,
+        "median": 102.6,
+        "mean": 102.6,
+        "max": 102.6
+      },
+      "health_check_seconds": {
+        "count": 3,
+        "min": 36.0,
+        "median": 36.0,
+        "mean": 36.0,
+        "max": 36.0
+      },
+      "build_duration_seconds": {
+        "count": 3,
+        "min": 164.9,
+        "median": 169.5,
+        "mean": 170.2,
+        "max": 176.1
+      }
+    },
+    "fault-500": {
+      "runs": 3,
+      "failed_builds": 3,
+      "recovered_runs": 3,
+      "activation_to_detection_seconds": {
+        "count": 3,
+        "min": 46.5,
+        "median": 46.5,
+        "mean": 46.5,
+        "max": 46.5
+      },
+      "detection_to_recovery_seconds": {
+        "count": 3,
+        "min": 38.6,
+        "median": 46.5,
+        "mean": 43.9,
+        "max": 46.5
+      },
+      "activation_to_recovery_seconds": {
+        "count": 3,
+        "min": 85.1,
+        "median": 93.0,
+        "mean": 90.4,
+        "max": 93.0
+      },
+      "health_check_seconds": {
+        "count": 3,
+        "min": 27.0,
+        "median": 27.0,
+        "mean": 27.0,
+        "max": 27.0
+      },
+      "build_duration_seconds": {
+        "count": 3,
+        "min": 154.2,
+        "median": 154.7,
+        "mean": 154.6,
+        "max": 154.8
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "fault": "fault-500",
+  "release_id": "jenkins-3-7f98fd1",
+  "app_version": "v1.0.3",
+  "automated": false,
+  "method": "Activated the known bad release, observed it unhealthy for a fixed 120s window, then restored the stable release manually.",
+  "activated_at_epoch": 1793223259,
+  "first_health_http": 0,
+  "observation_seconds": 120,
+  "health_during_observation": {
+    "http_status": 500,
+    "body": {
+      "status": "unhealthy",
+      "version": "v1.0.3"
+    }
+  },
+  "restore_started_epoch": 1793223379,
+  "recovered_at_epoch": 1793223380,
+  "outage_seconds": 121,
+  "recovered_release": "jenkins-6-5ff39f4",
+  "recovered_version": "v1.0.6",
+  "recovery_verified": true,
+  "note": "The 120s observation window is an optimistic manual baseline. A real operator would also need time to notice and diagnose the failure."
+}

@@ -46,9 +46,9 @@ Deployment Health Check & Policy Evaluation
 | **Phase 1** | Environment Setup & Repo Initialization | âœ… Completed | Tools verified (Python 3.10, Git, Terraform, Azure CLI, Docker), directory layout, virtualenv initialized. |
 | **Phase 2** | Flask Application, Tests & Docker Validation | âœ… Completed | Application factory (`app.app`), home dashboard, `/health` endpoint, 25 unit/integration tests, Dockerfile, cross-platform dependencies. |
 | **Phase 3** | Terraform Infrastructure Provisioning & Verification | âœ… Completed | 8 Azure resources provisioned in `eastasia`; VM running; SSH/NSG corrected; Nginx and cloud-init verified. See `phase3_validation.md`. |
-| **Phase 4** | Jenkins CI/CD Pipeline | âœ… Completed | Jenkins in Docker, GitHub Poll SCM, tests, packaging, versioned SSH deployment, health validation, and build artifacts. Builds #1 and #2 succeeded. |
+| **Phase 4** | Jenkins CI/CD Pipeline | âœ… Completed | Jenkins in Docker, GitHub Poll SCM, tests, packaging, versioned SSH deployment, health validation, and build artifacts. Builds #1-#6 succeeded; Build #6 was the stable release during the Phase 6 evaluation (`jenkins-6-5ff39f4`, `v1.0.6`). |
 | **Phase 5** | Health Validation & Self-Healing Logic | âœ… Completed | `deploy.sh`, `rollback.sh`, `health_check.py`, `health_policy.json`; a faulty release was rolled back and recovery was verified with `incident_report.json`. |
-| **Phase 6** | Failure Injection, Evaluation & Documentation | â³ Planned | Synthetic bad release testing, rollback verification logs, demonstration metrics. |
+| **Phase 6** | Failure Injection, Evaluation & Documentation | ✅ Completed | Three synthetic fault types evaluated across nine Jenkins runs; 9/9 faulty builds failed and recovered; median total recovery 85.1-102.6s; manual baseline 121s. See `evaluation/phase6_report.md`. |
 
 ---
 
@@ -176,11 +176,23 @@ Open http://localhost:8080/ and sign in as `admin` with the password stored in
 | Check | Result |
 |---|---|
 | Jenkins job `healdeploy` | Created from `https://github.com/Aaron-B-Mampilly/healdeploy.git` (`main`) |
-| Build #1 | SUCCESS, deployed `v1.0.1` |
-| Build #2 | SUCCESS, deployed `v1.0.2` |
-| Public `/health` after Build #2 | `{"status": "healthy", "version": "v1.0.2"}` |
+| Builds #1-#6 | SUCCESS; Build #6 was the stable release used for the Phase 6 evaluation (`jenkins-6-5ff39f4`, `v1.0.6`) |
+| Fault evaluation | 9/9 fault builds failed and recovered; see Phase 6 evaluation below |
+| Public `/health` after Build #6 | `{"status": "healthy", "version": "v1.0.6"}` |
 | Manual fault-500 release | Health policy failed; rollback restored the prior stable release; recovery verified |
 | Terraform validation in Jenkins | `fmt -check`, `init -backend=false`, and `validate` passed |
+
+### Phase 6 evaluation
+
+Three synthetic fault branches were evaluated through Jenkins: `fault-500` (HTTP 500),
+`fault-startup` (application fails to start), and `fault-slow` (health p95 exceeds 500ms).
+Nine runs (three per fault) all produced FAILURE builds, and all nine rollbacks restored
+and verified `jenkins-6-5ff39f4` (`v1.0.6`). Median total recovery was 85.1s for startup,
+93.0s for HTTP 500, and 102.6s for slow health. A manual no-rollback baseline measured
+121s under a fixed 120s observation window.
+
+See `evaluation/phase6_report.md`, `evaluation/evaluation_results.json`, and
+`evaluation/baseline_result.json` for the full results.
 
 ---
 
@@ -284,12 +296,14 @@ terraform plan
 - Phase 1: Environment, dependencies, `.venv`, Git repository.
 - Phase 2: Flask app, `/health` endpoint, 25 pytest tests, Docker validation.
 - Phase 3: Azure infrastructure provisioned (8 resources), SSH/NSG corrected, VM reachable, cloud-init and Nginx verified, Terraform converged with no pending changes.
-- Phase 4: Jenkins in Docker, GitHub Poll SCM, versioned SSH deployment, health validation, and successful builds #1 (`v1.0.1`) and #2 (`v1.0.2`).
-- Phase 5: `deploy.sh`, `rollback.sh`, `health_check.py`, `health_policy.json`, incident reporting, and a verified fault-500 rollback/recovery.
+- Phase 4: Jenkins in Docker, GitHub Poll SCM, versioned SSH deployment, health validation, and successful builds #1-#6; Build #6 was the stable release during the Phase 6 evaluation (`v1.0.6`).
+- Phase 5: `deploy.sh`, `rollback.sh`, `health_check.py`, `health_policy.json`, incident reporting, and verified fault-500 rollback/recovery.
+- Phase 6: `fault-500`, `fault-startup`, and `fault-slow` branches; nine Jenkins evaluation runs; 9/9 faulty builds failed and recovered; baseline and results in `evaluation/`.
 
-### Deferred to Future Phases:
-- Fault-injection branches, baseline comparison, repeated evaluation runs, and results tables: **Phase 6**.
-- Final IA3 report, architecture diagram, screenshots, observations, limitations, and conclusion: **Phase 6**.
+### Deferred / Future Work:
+- Production hardening: multi-node deployment, external health monitoring, secret management, and Jenkins high availability.
+- Additional fault classes: network partitions, dependency failures, disk exhaustion, and load-induced latency.
+- Load and concurrency testing with multiple simultaneous deployments.
 
 ---
 
