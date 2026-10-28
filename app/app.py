@@ -21,6 +21,7 @@ Usage (production via Gunicorn on Linux):
 """
 
 import os
+import time
 from flask import Flask, jsonify, render_template
 
 
@@ -78,6 +79,8 @@ def create_app(test_config=None):
             {"status": "healthy", "version": "v1.0.0"}
         """
         version = app.config["HEALDEPLOY_VERSION"]
+        if os.environ.get("HEALDEPLOY_FAULT") == "slow":
+            time.sleep(1.0)
         return jsonify({"status": "healthy", "version": version}), 200
 
     return app
