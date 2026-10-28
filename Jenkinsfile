@@ -8,10 +8,6 @@ pipeline {
         timeout(time: 30, unit: 'MINUTES')
     }
 
-    triggers {
-        pollSCM('H/5 * * * *')
-    }
-
     parameters {
         string(
             name: 'FAULT_MODE',
