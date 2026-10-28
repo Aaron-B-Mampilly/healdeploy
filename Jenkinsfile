@@ -12,6 +12,14 @@ pipeline {
         pollSCM('H/5 * * * *')
     }
 
+    parameters {
+        string(
+            name: 'FAULT_MODE',
+            defaultValue: '',
+            description: 'Optional runtime fault mode for controlled evaluation (for example: 500).'
+        )
+    }
+
     environment {
         VM_HOST = '20.205.103.245'
         APP_NAME = 'healdeploy'
@@ -102,7 +110,7 @@ pipeline {
                             scp $SSH_OPTS "$ARCHIVE" deploy/deploy.sh deploy/rollback.sh deploy/health_check.py deploy/health_policy.json "$SSH_USER@$VM_HOST:$REMOTE_DIR/"
 
                             set +e
-                            ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "sudo -n install -d -o healdeploy -g healdeploy /opt/healdeploy/deploy && sudo -n install -m 755 $REMOTE_DIR/deploy.sh $REMOTE_DIR/rollback.sh /opt/healdeploy/deploy/ && sudo -n install -m 644 $REMOTE_DIR/health_check.py $REMOTE_DIR/health_policy.json /opt/healdeploy/deploy/ && sudo -n /opt/healdeploy/deploy/deploy.sh '$RELEASE_ID' '$APP_VERSION' '$REMOTE_DIR/$(basename "$ARCHIVE")'"
+                            ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "sudo -n install -d -o healdeploy -g healdeploy /opt/healdeploy/deploy && sudo -n install -m 755 $REMOTE_DIR/deploy.sh $REMOTE_DIR/rollback.sh /opt/healdeploy/deploy/ && sudo -n install -m 644 $REMOTE_DIR/health_check.py $REMOTE_DIR/health_policy.json /opt/healdeploy/deploy/ && sudo -n /opt/healdeploy/deploy/deploy.sh '$RELEASE_ID' '$APP_VERSION' '$REMOTE_DIR/$(basename "$ARCHIVE")' '$FAULT_MODE'"
                             DEPLOY_RC=$?
                             set -e
 

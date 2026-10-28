@@ -10,16 +10,20 @@
 # succeeds, so a bad release is never silently accepted.
 #
 # Usage:
-#   deploy.sh <release_id> <app_version> <archive_path>
+#   deploy.sh <release_id> <app_version> <archive_path> [fault_mode]
+#
+# fault_mode is optional and is written to the release .env as
+# HEALDEPLOY_FAULT for controlled fault-injection evaluation.
 #
 # This script is intended to run as root (invoked through sudo) on the VM.
 # =============================================================================
 
 set -euo pipefail
 
-RELEASE_ID="${1:?usage: deploy.sh <release_id> <app_version> <archive_path>}"
-APP_VERSION="${2:?usage: deploy.sh <release_id> <app_version> <archive_path>}"
-ARCHIVE="${3:?usage: deploy.sh <release_id> <app_version> <archive_path>}"
+RELEASE_ID="${1:?usage: deploy.sh <release_id> <app_version> <archive_path> [fault_mode]}"
+APP_VERSION="${2:?usage: deploy.sh <release_id> <app_version> <archive_path> [fault_mode]}"
+ARCHIVE="${3:?usage: deploy.sh <release_id> <app_version> <archive_path> [fault_mode]}"
+FAULT_MODE="${4:-}"
 
 BASE_DIR="/opt/healdeploy"
 DEPLOY_DIR="$BASE_DIR/deploy"
@@ -141,6 +145,11 @@ if ! [[ "$RELEASE_ID" =~ ^[A-Za-z0-9._-]+$ ]]; then
     exit 1
 fi
 
+if [ -n "$FAULT_MODE" ] && ! [[ "$FAULT_MODE" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    log "invalid fault mode: $FAULT_MODE"
+    exit 1
+fi
+
 if [ ! -f "$ARCHIVE" ]; then
     log "archive not found: $ARCHIVE"
     exit 1
@@ -172,6 +181,9 @@ sudo -u healdeploy "$RELEASE_DIR/.venv/bin/python" -m pip install --upgrade pip 
 sudo -u healdeploy "$RELEASE_DIR/.venv/bin/pip" install --no-cache-dir -r "$RELEASE_DIR/requirements.txt"
 
 printf 'HEALDEPLOY_VERSION=%s\nPYTHONUNBUFFERED=1\n' "$APP_VERSION" > "$RELEASE_DIR/.env"
+if [ -n "$FAULT_MODE" ]; then
+    printf 'HEALDEPLOY_FAULT=%s\n' "$FAULT_MODE" >> "$RELEASE_DIR/.env"
+fi
 chown healdeploy:healdeploy "$RELEASE_DIR/.env"
 
 log "activating release $RELEASE_ID"
