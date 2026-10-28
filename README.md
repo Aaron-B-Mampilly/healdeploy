@@ -71,7 +71,7 @@ In Phase 2, the core web application and testing infrastructure were implemented
 In Phase 3, the declarative Infrastructure as Code (IaC) configuration is established under `terraform/`:
 
 ### Resource Architecture
-1. **Resource Group (`rg-healdeploy-eastus`)**: Dedicated boundary in `eastus`.
+1. **Resource Group (`rg-healdeploy-eastasia`)**: Dedicated boundary in `eastasia` (policy-allowed student region).
 2. **Virtual Network & Subnet**: `vnet-healdeploy` (`10.0.0.0/16`) and `snet-healdeploy-app` (`10.0.1.0/24`).
 3. **Network Security Group (`nsg-healdeploy`)**:
    - **Port 80 (HTTP)**: Inbound allow from `*` (Internet) for public web access.
@@ -80,7 +80,7 @@ In Phase 3, the declarative Infrastructure as Code (IaC) configuration is establ
 4. **Public IP (`pip-healdeploy-vm`)**: Standard SKU with Static allocation.
 5. **Network Interface (`nic-healdeploy-vm`)**: Connects VM to subnet with static public IP and NSG association.
 6. **Linux Virtual Machine (`vm-healdeploy-prod`)**:
-   - **SKU**: `Standard_D2s_v3` (2 vCPUs, 8 GiB RAM, Gen2 architecture).
+   - **SKU**: `Standard_D2s_v4` (2 vCPUs, 8 GiB RAM, Gen2 architecture).
    - **OS**: Ubuntu Server 22.04 LTS (`Canonical:0001-com-ubuntu-server-jammy:22_04-lts-gen2:latest`).
    - **Auth**: SSH public-key authentication only; password authentication disabled.
    - **OS Disk**: 30 GB Standard SSD (`StandardSSD_LRS`).

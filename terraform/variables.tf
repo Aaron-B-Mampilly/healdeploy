@@ -10,13 +10,13 @@ variable "subscription_id" {
 variable "location" {
   description = "Azure region where resources will be provisioned"
   type        = string
-  default     = "eastus"
+  default     = "eastasia"
 }
 
 variable "resource_group_name" {
   description = "Name of the Azure Resource Group"
   type        = string
-  default     = "rg-healdeploy-eastus"
+  default     = "rg-healdeploy-eastasia"
 }
 
 variable "vnet_name" {
@@ -70,7 +70,7 @@ variable "vm_name" {
 variable "vm_size" {
   description = "Azure VM SKU size"
   type        = string
-  default     = "Standard_D2s_v3"
+  default     = "Standard_D2s_v4"
 }
 
 variable "admin_username" {
