@@ -78,6 +78,8 @@ def create_app(test_config=None):
             {"status": "healthy", "version": "v1.0.0"}
         """
         version = app.config["HEALDEPLOY_VERSION"]
+        if os.environ.get("HEALDEPLOY_FAULT") == "500":
+            return jsonify({"status": "unhealthy", "version": version}), 500
         return jsonify({"status": "healthy", "version": version}), 200
 
     return app
