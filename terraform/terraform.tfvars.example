@@ -1,0 +1,14 @@
+# =============================================================================
+# HealDeploy — Example Terraform Variables (terraform.tfvars.example)
+# =============================================================================
+# Copy this file to terraform.tfvars and populate with your own environment values.
+# NOTE: terraform.tfvars is ignored by Git and must NEVER be committed.
+# =============================================================================
+
+subscription_id     = "00000000-0000-0000-0000-000000000000"
+location            = "eastus"
+resource_group_name = "rg-healdeploy-eastus"
+vm_size             = "Standard_D2s_v3"
+admin_username      = "azureuser"
+allowed_ssh_cidr    = "203.0.113.1/32"
+ssh_public_key      = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC... user@example.com"
