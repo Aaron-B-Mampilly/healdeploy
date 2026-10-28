@@ -4,6 +4,11 @@
 **Date:** 29 October 2026 (IST)  
 **Status:** Infrastructure provisioned and verified. Application release deployment remains Phase 4 work.
 
+> **Update (29 October 2026):** The ISP later rotated its NAT address from
+> `106.76.185.171` to `106.76.187.20`. The NSG rule and `terraform.tfvars` were updated to
+> `106.76.187.20/32`, and SSH was re-verified from both the host and the Jenkins container.
+> The Phase 3 values below remain the historical record.
+
 ---
 
 ## 1. Scope

@@ -92,7 +92,7 @@ record is in `phase3_validation.md`.
 2. **Virtual Network & Subnet**: `vnet-healdeploy` (`10.0.0.0/16`) and `snet-healdeploy-app` (`10.0.1.0/24`).
 3. **Network Security Group (`nsg-healdeploy`)**:
    - **Port 80 (HTTP)**: Inbound allow from `*` (Internet) for public web access.
-   - **Port 22 (SSH)**: Inbound allow strictly restricted to the developer source IP (`allowed_ssh_cidr`, currently `106.76.185.171/32`). This is the address Azure actually receives, which can differ from public IP echo services on some ISPs.
+   - **Port 22 (SSH)**: Inbound allow strictly restricted to the developer source IP (`allowed_ssh_cidr`, currently `106.76.187.20/32`). This is the address Azure actually receives, which can differ from public IP echo services on some ISPs and may change when the ISP rotates its NAT pool; update `terraform.tfvars` and the NSG rule when that happens.
    - **Port 8000 (Gunicorn)**: **Closed to Internet**; strictly bound to `127.0.0.1:8000` on the VM.
 4. **Public IP (`pip-healdeploy-vm`)**: Standard SKU with Static allocation.
 5. **Network Interface (`nic-healdeploy-vm`)**: Connects VM to subnet with static public IP and NSG association.
