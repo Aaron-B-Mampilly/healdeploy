@@ -26,29 +26,29 @@ The project automates deployment of a Python Flask web application to Microsoft 
 
 ```
 GitHub Repository
-       │ (Push / Tag)
-       ▼
+       â”‚ (Push / Tag)
+       â–¼
 Jenkins Pipeline (Docker)
-       │ (Trigger Terraform & Remote Exec)
-       ▼
+       â”‚ (Trigger Terraform & Remote Exec)
+       â–¼
 Azure Linux Virtual Machine (Nginx + Gunicorn + Flask in virtualenv)
-       │
-       ▼
+       â”‚
+       â–¼
 Deployment Health Check & Policy Evaluation
-       ├── PASS ──► Release Promoted to Stable
-       └── FAIL ──► Automated Rollback ──► Recovery Verification
+       â”œâ”€â”€ PASS â”€â”€â–º Release Promoted to Stable
+       â””â”€â”€ FAIL â”€â”€â–º Automated Rollback â”€â”€â–º Recovery Verification
 ```
 
 ### Phase Implementation Status
 
 | Phase | Description | Status | Scope & Deliverables |
 |:---|:---|:---:|:---|
-| **Phase 1** | Environment Setup & Repo Initialization | ✅ Completed | Tools verified (Python 3.10, Git, Terraform, Azure CLI, Docker), directory layout, virtualenv initialized. |
-| **Phase 2** | Flask Application, Tests & Docker Validation | ✅ Completed | Application factory (`app.app`), home dashboard, `/health` endpoint, 25 unit/integration tests, Dockerfile, cross-platform dependencies. |
-| **Phase 3** | Terraform Infrastructure Provisioning & Verification | ✅ Completed | 8 Azure resources provisioned in `eastasia`; VM running; SSH/NSG corrected; Nginx and cloud-init verified. See `phase3_validation.md`. |
-| **Phase 4** | Jenkins CI/CD Pipeline | ⏳ Planned | Multi-stage Jenkinsfile for linting, testing, packaging, and zero-downtime deployment. |
-| **Phase 5** | Health Validation & Self-Healing Logic | ⏳ Planned | Automated health probe scripts, rollback triggers, and recovery verification. |
-| **Phase 6** | Failure Injection, Evaluation & Documentation | ⏳ Planned | Synthetic bad release testing, rollback verification logs, demonstration metrics. |
+| **Phase 1** | Environment Setup & Repo Initialization | âœ… Completed | Tools verified (Python 3.10, Git, Terraform, Azure CLI, Docker), directory layout, virtualenv initialized. |
+| **Phase 2** | Flask Application, Tests & Docker Validation | âœ… Completed | Application factory (`app.app`), home dashboard, `/health` endpoint, 25 unit/integration tests, Dockerfile, cross-platform dependencies. |
+| **Phase 3** | Terraform Infrastructure Provisioning & Verification | âœ… Completed | 8 Azure resources provisioned in `eastasia`; VM running; SSH/NSG corrected; Nginx and cloud-init verified. See `phase3_validation.md`. |
+| **Phase 4** | Jenkins CI/CD Pipeline | âœ… Completed | Jenkins in Docker, GitHub Poll SCM, tests, packaging, versioned SSH deployment, health validation, and build artifacts. Builds #1 and #2 succeeded. |
+| **Phase 5** | Health Validation & Self-Healing Logic | âœ… Completed | `deploy.sh`, `rollback.sh`, `health_check.py`, `health_policy.json`; a faulty release was rolled back and recovery was verified with `incident_report.json`. |
+| **Phase 6** | Failure Injection, Evaluation & Documentation | â³ Planned | Synthetic bad release testing, rollback verification logs, demonstration metrics. |
 
 ---
 
@@ -114,7 +114,77 @@ record is in `phase3_validation.md`.
 
 ---
 
-## 5. Prerequisites
+## 5. Jenkins CI/CD Pipeline (Phase 4)
+
+Jenkins runs in Docker (`jenkins/Dockerfile`, based on `jenkins/jenkins:lts-jdk17`) with
+Python, Git, OpenSSH, and Terraform 1.16.6. The image installs the pipeline, Git, GitHub,
+credentials-binding, SSH, JUnit, timestamper, and stage-view plugins.
+
+### Pipeline stages
+
+1. **Checkout**: clone the GitHub `main` branch.
+2. **Test**: create an isolated virtual environment and run pytest with JUnit results.
+3. **Terraform Validate**: `fmt -check`, `init -backend=false`, and `validate`.
+4. **Package**: create `build/healdeploy-<release>.tar.gz`.
+5. **Deploy and Verify**: copy the archive and deploy helpers to the VM, install them under
+   `/opt/healdeploy/deploy`, run `deploy.sh`, and archive health/incident artifacts.
+
+The job uses Poll SCM every five minutes and `disableConcurrentBuilds()`. The SSH private key
+is stored in Jenkins Credentials as `healdeploy-ssh-key`; it is mounted into the container from
+`%USERPROFILE%\.ssh\healdeploy_rsa` at runtime and is never committed. The VM host keys in
+`jenkins/known_hosts` were verified against Azure control-plane data.
+
+### Starting Jenkins
+
+```powershell
+docker build -t healdeploy-jenkins:phase4 jenkins/
+
+# Generate a local admin password (gitignored)
+$password = -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 24 | ForEach-Object { [char]$_ })
+Set-Content -Path jenkins\.admin_password -Value $password -Encoding ascii -NoNewline
+
+docker run -d --name healdeploy-jenkins --restart unless-stopped `
+  -p 8080:8080 -p 50000:50000 `
+  -v healdeploy-jenkins-home:/var/jenkins_home `
+  -v "${env:USERPROFILE}\.ssh\healdeploy_rsa:/run/secrets/healdeploy_rsa:ro" `
+  -e "JENKINS_ADMIN_PASSWORD=$password" `
+  -e "JAVA_OPTS=-Djenkins.install.runSetupWizard=false" `
+  healdeploy-jenkins:phase4
+```
+
+Open http://localhost:8080/ and sign in as `admin` with the password stored in
+`jenkins/.admin_password`. The `healdeploy` job is created automatically.
+
+### Self-healing deployment model
+
+- Releases live in `/opt/healdeploy/releases/<release-id>/`, each with its own `.venv`.
+- `/opt/healdeploy/current` is a symlink to the active release.
+- `/opt/healdeploy/stable_release.txt` records the last release that passed the health policy.
+- `deploy.sh` builds and activates a release, restarts `healdeploy.service`, and runs
+  `health_check.py`.
+- `health_policy.json` requires 9 of 10 successful probes, a p95 latency below 500 ms, a
+  15-second startup grace, and 3-second probe intervals.
+- If validation fails, `rollback.sh` restores the stable release, restarts the service, and
+  re-runs the health policy.
+- A failed release keeps the Jenkins build FAILURE even when recovery succeeds.
+  `incident_report.json` records detection, rollback, recovery, and final verification
+  timestamps.
+- Releases are pruned to the latest five; the active and stable releases are never removed.
+
+### Phase 4 verification
+
+| Check | Result |
+|---|---|
+| Jenkins job `healdeploy` | Created from `https://github.com/Aaron-B-Mampilly/healdeploy.git` (`main`) |
+| Build #1 | SUCCESS, deployed `v1.0.1` |
+| Build #2 | SUCCESS, deployed `v1.0.2` |
+| Public `/health` after Build #2 | `{"status": "healthy", "version": "v1.0.2"}` |
+| Manual fault-500 release | Health policy failed; rollback restored the prior stable release; recovery verified |
+| Terraform validation in Jenkins | `fmt -check`, `init -backend=false`, and `validate` passed |
+
+---
+
+## 6. Prerequisites
 
 - **Python**: 3.10.x (verified with 3.10.11)
 - **Terraform**: 1.16.6+ (AzureRM provider `~> 4.0`)
@@ -124,7 +194,7 @@ record is in `phase3_validation.md`.
 
 ---
 
-## 6. Development Setup & Virtual Environment
+## 7. Development Setup & Virtual Environment
 
 Clone the repository and initialize the isolated virtual environment:
 
@@ -153,7 +223,7 @@ pip install -r requirements.txt
 
 ---
 
-## 7. Running the Application Locally
+## 8. Running the Application Locally
 
 ```bat
 # Set the version dynamically (Windows CMD)
@@ -171,7 +241,7 @@ Navigate to:
 
 ---
 
-## 8. Running the Automated Tests
+## 9. Running the Automated Tests
 
 All tests run offline without network or Azure dependencies using Flask's test client:
 
@@ -181,7 +251,7 @@ python -m pytest -v
 
 ---
 
-## 9. Terraform Workflow & Safety Rules
+## 10. Terraform Workflow & Safety Rules
 
 All Terraform configuration lives in `terraform/`:
 
@@ -208,20 +278,21 @@ terraform plan
 
 ---
 
-## 10. Phase Implementation Boundaries
+## 11. Phase Implementation Boundaries
 
 ### Implemented & Validated:
 - Phase 1: Environment, dependencies, `.venv`, Git repository.
 - Phase 2: Flask app, `/health` endpoint, 25 pytest tests, Docker validation.
 - Phase 3: Azure infrastructure provisioned (8 resources), SSH/NSG corrected, VM reachable, cloud-init and Nginx verified, Terraform converged with no pending changes.
+- Phase 4: Jenkins in Docker, GitHub Poll SCM, versioned SSH deployment, health validation, and successful builds #1 (`v1.0.1`) and #2 (`v1.0.2`).
+- Phase 5: `deploy.sh`, `rollback.sh`, `health_check.py`, `health_policy.json`, incident reporting, and a verified fault-500 rollback/recovery.
 
 ### Deferred to Future Phases:
-- First application release and Jenkins CI/CD pipeline definition (`Jenkinsfile`): **Phase 4**.
-- Automated rollback scripts, health check polling scripts, and recovery validation logic: **Phase 5**.
-- Fault injection and evaluation metrics: **Phase 6**.
+- Fault-injection branches, baseline comparison, repeated evaluation runs, and results tables: **Phase 6**.
+- Final IA3 report, architecture diagram, screenshots, observations, limitations, and conclusion: **Phase 6**.
 
 ---
 
 ## License & Academic Disclaimer
 
-DevOps IA3 Academic Project — Developed for academic demonstration purposes.
+DevOps IA3 Academic Project â€” Developed for academic demonstration purposes.

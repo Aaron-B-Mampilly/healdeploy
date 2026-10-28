@@ -106,9 +106,11 @@ pipeline {
                             set -e
 
                             mkdir -p artifacts
-                            scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/incident_report.json" artifacts/incident_report.json || true
-                            scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-$RELEASE_ID.json" artifacts/ || true
-                            scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-rollback-$RELEASE_ID.json" artifacts/ || true
+                            scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
+                            if [ "$DEPLOY_RC" -ne 0 ]; then
+                                scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/incident_report.json" artifacts/incident_report.json 2>/dev/null || true
+                                scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-rollback-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
+                            fi
                             exit $DEPLOY_RC
                         '''
                     }
