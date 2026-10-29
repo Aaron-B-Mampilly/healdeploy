@@ -18,6 +18,7 @@ pipeline {
 
     environment {
         VM_HOST = '20.205.103.245'
+        SSH_PORT = '443'
         APP_NAME = 'healdeploy'
         SSH_CREDENTIALS_ID = 'healdeploy-ssh-key'
         KNOWN_HOSTS = '/var/jenkins_home/.ssh/known_hosts'
@@ -101,23 +102,24 @@ pipeline {
                             FAULT_MODE="${FAULT_MODE:-}"
                             ARCHIVE="$(cat build/archive-path.txt)"
                             REMOTE_DIR="/tmp/healdeploy-${BUILD_NUMBER}"
-                            SSH_OPTS="-i $SSH_KEY -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
+                            SSH_OPTS="-p $SSH_PORT -i $SSH_KEY -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
+                            SCP_OPTS="-P $SSH_PORT -i $SSH_KEY -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
 
                             rm -rf artifacts
                             mkdir -p artifacts
 
                             ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "rm -rf $REMOTE_DIR && mkdir -p $REMOTE_DIR"
-                            scp $SSH_OPTS "$ARCHIVE" deploy/deploy.sh deploy/rollback.sh deploy/health_check.py deploy/health_policy.json "$SSH_USER@$VM_HOST:$REMOTE_DIR/"
+                            scp $SCP_OPTS "$ARCHIVE" deploy/deploy.sh deploy/rollback.sh deploy/health_check.py deploy/health_policy.json "$SSH_USER@$VM_HOST:$REMOTE_DIR/"
 
                             set +e
                             ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "sudo -n install -d -o healdeploy -g healdeploy /opt/healdeploy/deploy && sudo -n install -m 755 $REMOTE_DIR/deploy.sh $REMOTE_DIR/rollback.sh /opt/healdeploy/deploy/ && sudo -n install -m 644 $REMOTE_DIR/health_check.py $REMOTE_DIR/health_policy.json /opt/healdeploy/deploy/ && sudo -n /opt/healdeploy/deploy/deploy.sh '$RELEASE_ID' '$APP_VERSION' '$REMOTE_DIR/$(basename "$ARCHIVE")' '$FAULT_MODE'"
                             DEPLOY_RC=$?
                             set -e
 
-                            scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
+                            scp $SCP_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
                             if [ "$DEPLOY_RC" -ne 0 ]; then
-                                scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/incident_report.json" artifacts/incident_report.json 2>/dev/null || true
-                                scp $SSH_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-rollback-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
+                                scp $SCP_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/incident_report.json" artifacts/incident_report.json 2>/dev/null || true
+                                scp $SCP_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-rollback-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
                             fi
                             exit $DEPLOY_RC
                         '''
