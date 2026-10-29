@@ -21,11 +21,14 @@ pipeline {
     }
 
     environment {
-        VM_HOST = '20.205.103.245'
-        SSH_PORT = '443'
         APP_NAME = 'healdeploy'
-        SSH_CREDENTIALS_ID = 'healdeploy-ssh-key'
-        KNOWN_HOSTS = '/var/jenkins_home/.ssh/known_hosts'
+        AZURE_CREDENTIALS_ID = 'azure-healdeploy-sp'
+        AZURE_TENANT_ID = 'cb5094c4-bbe4-4bfe-bfae-de5cc816dc02'
+        AZURE_SUBSCRIPTION_ID = '12a10260-24c6-4c16-a86e-b77fbfef0438'
+        AZURE_RESOURCE_GROUP = 'rg-healdeploy-eastasia'
+        AZURE_VM_NAME = 'vm-healdeploy-prod'
+        ARTIFACT_STORAGE_ACCOUNT = 'hdeployart120381'
+        ARTIFACT_CONTAINER = 'releases'
     }
 
     stages {
@@ -86,7 +89,9 @@ pipeline {
                     tar -czf "$ARCHIVE" \
                         --exclude='app/__pycache__' \
                         --exclude='*.pyc' \
-                        app requirements.txt
+                        app requirements.txt \
+                        deploy/deploy.sh deploy/rollback.sh \
+                        deploy/health_check.py deploy/health_policy.json
                     echo "$ARCHIVE" > build/archive-path.txt
                     ls -lh "$ARCHIVE"
                 '''
@@ -94,61 +99,105 @@ pipeline {
             }
         }
 
-        stage('SSH Connectivity Preflight') {
-            steps {
-                script {
-                    withCredentials([
-                        sshUserPrivateKey(
-                            credentialsId: env.SSH_CREDENTIALS_ID,
-                            keyFileVariable: 'SSH_KEY',
-                            usernameVariable: 'SSH_USER'
-                        )
-                    ]) {
-                        sh '''
-                            set -eu
-                            SSH_OPTS="-p $SSH_PORT -i $SSH_KEY -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
-                            ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "printf '%s\\n' ssh-preflight-ok"
-                        '''
-                    }
-                }
-            }
-        }
-
         stage('Deploy and Verify') {
             steps {
                 script {
                     withCredentials([
-                        sshUserPrivateKey(
-                            credentialsId: env.SSH_CREDENTIALS_ID,
-                            keyFileVariable: 'SSH_KEY',
-                            usernameVariable: 'SSH_USER'
+                        usernamePassword(
+                            credentialsId: env.AZURE_CREDENTIALS_ID,
+                            usernameVariable: 'AZURE_CLIENT_ID',
+                            passwordVariable: 'AZURE_CLIENT_SECRET'
                         )
                     ]) {
                         sh '''
-                            set -u
+                            set -eu
                             FAULT_MODE="${FAULT_MODE:-}"
                             ARCHIVE="$(cat build/archive-path.txt)"
-                            REMOTE_DIR="/tmp/healdeploy-${BUILD_NUMBER}"
-                            SSH_OPTS="-p $SSH_PORT -i $SSH_KEY -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
-                            SCP_OPTS="-P $SSH_PORT -i $SSH_KEY -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
-
+                            BLOB_NAME="${APP_NAME}/${RELEASE_ID}.tar.gz"
+                            SHA256="$(sha256sum "$ARCHIVE" | awk '{print $1}')"
                             rm -rf artifacts
                             mkdir -p artifacts
 
-                            ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "rm -rf $REMOTE_DIR && mkdir -p $REMOTE_DIR"
-                            scp $SCP_OPTS "$ARCHIVE" deploy/deploy.sh deploy/rollback.sh deploy/health_check.py deploy/health_policy.json "$SSH_USER@$VM_HOST:$REMOTE_DIR/"
+                            az login --service-principal \
+                                --username "$AZURE_CLIENT_ID" \
+                                --password "$AZURE_CLIENT_SECRET" \
+                                --tenant "$AZURE_TENANT_ID" \
+                                --output none
+                            az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+                            az vm show \
+                                --resource-group "$AZURE_RESOURCE_GROUP" \
+                                --name "$AZURE_VM_NAME" \
+                                --query name --output tsv >/dev/null
 
-                            set +e
-                            ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "sudo -n install -d -o healdeploy -g healdeploy /opt/healdeploy/deploy && sudo -n install -m 755 $REMOTE_DIR/deploy.sh $REMOTE_DIR/rollback.sh /opt/healdeploy/deploy/ && sudo -n install -m 644 $REMOTE_DIR/health_check.py $REMOTE_DIR/health_policy.json /opt/healdeploy/deploy/ && sudo -n /opt/healdeploy/deploy/deploy.sh '$RELEASE_ID' '$APP_VERSION' '$REMOTE_DIR/$(basename "$ARCHIVE")' '$FAULT_MODE' '$GIT_BRANCH' '$GIT_COMMIT'"
-                            DEPLOY_RC=$?
-                            set -e
+                            az storage blob upload \
+                                --account-name "$ARTIFACT_STORAGE_ACCOUNT" \
+                                --container-name "$ARTIFACT_CONTAINER" \
+                                --name "$BLOB_NAME" \
+                                --file "$ARCHIVE" \
+                                --auth-mode login \
+                                --overwrite \
+                                --only-show-errors \
+                                --output none
 
-                            scp $SCP_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
-                            if [ "$DEPLOY_RC" -ne 0 ]; then
-                                scp $SCP_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/incident_report.json" artifacts/incident_report.json 2>/dev/null || true
-                                scp $SCP_OPTS "$SSH_USER@$VM_HOST:/opt/healdeploy/shared/health-rollback-$RELEASE_ID.json" artifacts/ 2>/dev/null || true
-                            fi
-                            exit $DEPLOY_RC
+                            SAS_EXPIRY="$(date -u -d '+15 minutes' '+%Y-%m-%dT%H:%MZ')"
+                            SAS_TOKEN="$(az storage blob generate-sas \
+                                --account-name "$ARTIFACT_STORAGE_ACCOUNT" \
+                                --container-name "$ARTIFACT_CONTAINER" \
+                                --name "$BLOB_NAME" \
+                                --permissions r \
+                                --expiry "$SAS_EXPIRY" \
+                                --https-only \
+                                --auth-mode login \
+                                --as-user \
+                                --output tsv)"
+                            ARTIFACT_URL="https://${ARTIFACT_STORAGE_ACCOUNT}.blob.core.windows.net/${ARTIFACT_CONTAINER}/${BLOB_NAME}?${SAS_TOKEN}"
+                            RUN_SCRIPT="$(mktemp)"
+                            cat > "$RUN_SCRIPT" <<'REMOTE_SCRIPT'
+set -eu
+BASE_DIR="/opt/healdeploy"
+REMOTE_DIR="/tmp/healdeploy-${releaseId}"
+ARCHIVE="$REMOTE_DIR/${releaseId}.tar.gz"
+mkdir -p "$REMOTE_DIR"
+curl --fail --location --retry 3 --connect-timeout 15 --max-time 120 \
+    "$artifactUrl" --output "$ARCHIVE"
+printf '%s  %s\n' "$sha256" "$ARCHIVE" | sha256sum --check --status
+tar -tzf "$ARCHIVE" app/app.py app/dashboard.py app/templates/index.html \
+    app/static/css/dashboard.css app/static/js/dashboard.js requirements.txt \
+    deploy/deploy.sh deploy/rollback.sh deploy/health_check.py deploy/health_policy.json >/dev/null
+install -d -o healdeploy -g healdeploy "$BASE_DIR/deploy"
+tar -xzf "$ARCHIVE" -C "$REMOTE_DIR"
+install -m 755 "$REMOTE_DIR/deploy/deploy.sh" "$REMOTE_DIR/deploy/rollback.sh" "$BASE_DIR/deploy/"
+install -m 644 "$REMOTE_DIR/deploy/health_check.py" "$REMOTE_DIR/deploy/health_policy.json" "$BASE_DIR/deploy/"
+sudo "$BASE_DIR/deploy/deploy.sh" "$releaseId" "$appVersion" "$ARCHIVE" "$faultMode" "$gitBranch" "$gitCommit"
+printf 'HEALDEPLOY_RUN_COMMAND_RESULT=success\n'
+REMOTE_SCRIPT
+                            set +x
+                            RUN_OUTPUT="$(az vm run-command invoke \
+                                --resource-group "$AZURE_RESOURCE_GROUP" \
+                                --name "$AZURE_VM_NAME" \
+                                --command-id RunShellScript \
+                                --scripts @"$RUN_SCRIPT" \
+                                --parameters \
+                                    artifactUrl "$ARTIFACT_URL" \
+                                    sha256 "$SHA256" \
+                                    releaseId "$RELEASE_ID" \
+                                    appVersion "$APP_VERSION" \
+                                    faultMode "$FAULT_MODE" \
+                                    gitBranch "$GIT_BRANCH" \
+                                    gitCommit "$GIT_COMMIT" \
+                                --query 'value[].message' \
+                                --output tsv)"
+                            set -x
+                            rm -f "$RUN_SCRIPT"
+                            printf '%s\n' "$RUN_OUTPUT" > artifacts/run-command.log
+                            printf '%s\n' "$RUN_OUTPUT" | grep -F 'HEALDEPLOY_RUN_COMMAND_RESULT=success'
+                            az vm run-command invoke \
+                                --resource-group "$AZURE_RESOURCE_GROUP" \
+                                --name "$AZURE_VM_NAME" \
+                                --command-id RunShellScript \
+                                --scripts "cat /opt/healdeploy/shared/health-${RELEASE_ID}.json" \
+                                --query 'value[].message' \
+                                --output tsv > artifacts/health-"$RELEASE_ID".json
                         '''
                     }
                 }

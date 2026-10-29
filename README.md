@@ -46,7 +46,7 @@ Deployment Health Check & Policy Evaluation
 | **Phase 1** | Environment Setup & Repo Initialization | âœ… Completed | Tools verified (Python 3.10, Git, Terraform, Azure CLI, Docker), directory layout, virtualenv initialized. |
 | **Phase 2** | Flask Application, Tests & Docker Validation | âœ… Completed | Application factory (`app.app`), home dashboard, `/health` endpoint, 25 unit/integration tests, Dockerfile, cross-platform dependencies. |
 | **Phase 3** | Terraform Infrastructure Provisioning & Verification | âœ… Completed | 8 Azure resources provisioned in `eastasia`; VM running; SSH/NSG corrected; Nginx and cloud-init verified. See `phase3_validation.md`. |
-| **Phase 4** | Jenkins CI/CD Pipeline | âœ… Completed | Jenkins in Docker, GitHub Poll SCM, tests, packaging, versioned SSH deployment, health validation, and build artifacts. Builds #1-#6 succeeded; Build #6 was the stable release during the Phase 6 evaluation (`jenkins-6-5ff39f4`, `v1.0.6`). |
+| **Phase 4** | Jenkins CI/CD Pipeline | âœ… Completed | Jenkins in Docker, GitHub Poll SCM, tests, packaging, Azure Run Command deployment, health validation, and build artifacts. |
 | **Phase 5** | Health Validation & Self-Healing Logic | âœ… Completed | `deploy.sh`, `rollback.sh`, `health_check.py`, `health_policy.json`; a faulty release was rolled back and recovery was verified with `incident_report.json`. |
 | **Phase 6** | Failure Injection, Evaluation & Documentation | ✅ Completed | Three synthetic fault types evaluated across nine Jenkins runs; 9/9 faulty builds failed and recovered; median total recovery 85.1-102.6s; manual baseline 121s. See `evaluation/phase6_report.md`. |
 
@@ -117,22 +117,22 @@ record is in `phase3_validation.md`.
 ## 5. Jenkins CI/CD Pipeline (Phase 4)
 
 Jenkins runs in Docker (`jenkins/Dockerfile`, based on `jenkins/jenkins:lts-jdk17`) with
-Python, Git, OpenSSH, and Terraform 1.16.6. The image installs the pipeline, Git, GitHub,
-credentials-binding, SSH, JUnit, timestamper, and stage-view plugins.
+Python, Git, Azure CLI, OpenSSH, and Terraform 1.16.6. Azure authentication uses the
+Jenkins credential `azure-healdeploy-sp`; its secret is not stored in the repository.
 
 ### Pipeline stages
 
 1. **Checkout**: clone the GitHub `main` branch.
 2. **Test**: create an isolated virtual environment and run pytest with JUnit results.
 3. **Terraform Validate**: `fmt -check`, `init -backend=false`, and `validate`.
-4. **Package**: create `build/healdeploy-<release>.tar.gz`.
-5. **Deploy and Verify**: copy the archive and deploy helpers to the VM, install them under
-   `/opt/healdeploy/deploy`, run `deploy.sh`, and archive health/incident artifacts.
+4. **Package**: create `build/healdeploy-<release>.tar.gz` containing the application and
+   deployment helpers.
+5. **Deploy and Verify**: upload the bundle to a private Azure Blob container, generate a
+   short-lived read-only SAS, invoke Azure Run Command on the existing VM, verify the
+   checksum and required files, run `deploy.sh`, and archive health artifacts.
 
-The job uses Poll SCM every five minutes and `disableConcurrentBuilds()`. The SSH private key
-is stored in Jenkins Credentials as `healdeploy-ssh-key`; it is mounted into the container from
-`%USERPROFILE%\.ssh\healdeploy_rsa` at runtime and is never committed. The VM host keys in
-`jenkins/known_hosts` were verified against Azure control-plane data.
+The job uses Poll SCM and `disableConcurrentBuilds()`. A failed health policy keeps the Jenkins
+build failed while the existing rollback procedure restores the previous stable release.
 
 ### Starting Jenkins
 

@@ -17,6 +17,7 @@ RUN apt-get update \
         tar \
         unzip \
     && rm -rf /var/lib/apt/lists/* \
+    && curl -sL https://aka.ms/InstallAzureCLIDeb | bash \
     && curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -o /tmp/terraform.zip \
     && unzip /tmp/terraform.zip -d /usr/local/bin \
     && rm -f /tmp/terraform.zip \

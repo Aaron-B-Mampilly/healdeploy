@@ -169,19 +169,15 @@ class TestRollbackReadiness:
 
 
 class TestJenkinsfileSSHConfiguration:
-    """SSH must use port 443 with lowercase -p; SCP must use uppercase -P."""
+    """The pipeline must deploy through Azure Run Command, not SSH."""
 
-    def test_jenkinsfile_ssh_port_443(self):
+    def test_jenkinsfile_uses_azure_run_command(self):
         jenkinsfile = Path("Jenkinsfile").read_text(encoding="utf-8")
-        assert "SSH_PORT = '443'" in jenkinsfile, (
-            "Jenkinsfile must set SSH_PORT = '443'"
-        )
-        assert '-p $SSH_PORT' in jenkinsfile, (
-            "Jenkinsfile SSH_OPTS must use lowercase -p for SSH port"
-        )
-        assert '-P $SSH_PORT' in jenkinsfile, (
-            "Jenkinsfile SCP_OPTS must use uppercase -P for SCP port"
-        )
+        assert "az vm run-command invoke" in jenkinsfile
+        assert "az storage blob upload" in jenkinsfile
+        assert "StrictHostKeyChecking" not in jenkinsfile
+        assert "sshUserPrivateKey" not in jenkinsfile
+        assert "azure-healdeploy-sp" in jenkinsfile
 
     def test_jenkinsfile_fault_mode_default_empty(self):
         jenkinsfile = Path("Jenkinsfile").read_text(encoding="utf-8")
