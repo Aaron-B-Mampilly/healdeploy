@@ -139,6 +139,7 @@ pipeline {
                                 --only-show-errors \
                                 --output none
 
+                            set +x
                             SAS_EXPIRY="$(date -u -d '+15 minutes' '+%Y-%m-%dT%H:%MZ')"
                             SAS_TOKEN="$(az storage blob generate-sas \
                                 --account-name "$ARTIFACT_STORAGE_ACCOUNT" \
@@ -151,6 +152,7 @@ pipeline {
                                 --as-user \
                                 --output tsv)"
                             ARTIFACT_URL="https://${ARTIFACT_STORAGE_ACCOUNT}.blob.core.windows.net/${ARTIFACT_CONTAINER}/${BLOB_NAME}?${SAS_TOKEN}"
+                            ARTIFACT_URL_B64="$(printf '%s' "$ARTIFACT_URL" | base64 | tr -d '\n')"
                             RUN_SCRIPT="$(mktemp)"
                             cat > "$RUN_SCRIPT" <<'REMOTE_SCRIPT'
 set -eu
@@ -158,8 +160,9 @@ BASE_DIR="/opt/healdeploy"
 REMOTE_DIR="/tmp/healdeploy-${releaseId}"
 ARCHIVE="$REMOTE_DIR/${releaseId}.tar.gz"
 mkdir -p "$REMOTE_DIR"
+ARTIFACT_URL="$(printf '%s' "$artifactUrlB64" | base64 -d)"
 curl --fail --location --retry 3 --connect-timeout 15 --max-time 120 \
-    "$artifactUrl" --output "$ARCHIVE"
+    "$ARTIFACT_URL" --output "$ARCHIVE"
 printf '%s  %s\n' "$sha256" "$ARCHIVE" | sha256sum --check --status
 tar -tzf "$ARCHIVE" app/app.py app/dashboard.py app/templates/index.html \
     app/static/css/dashboard.css app/static/js/dashboard.js requirements.txt \
@@ -171,23 +174,21 @@ install -m 644 "$REMOTE_DIR/deploy/health_check.py" "$REMOTE_DIR/deploy/health_p
 sudo "$BASE_DIR/deploy/deploy.sh" "$releaseId" "$appVersion" "$ARCHIVE" "$faultMode" "$gitBranch" "$gitCommit"
 printf 'HEALDEPLOY_RUN_COMMAND_RESULT=success\n'
 REMOTE_SCRIPT
-                            set +x
                             RUN_OUTPUT="$(az vm run-command invoke \
                                 --resource-group "$AZURE_RESOURCE_GROUP" \
                                 --name "$AZURE_VM_NAME" \
                                 --command-id RunShellScript \
                                 --scripts @"$RUN_SCRIPT" \
                                 --parameters \
-                                    artifactUrl "$ARTIFACT_URL" \
-                                    sha256 "$SHA256" \
-                                    releaseId "$RELEASE_ID" \
-                                    appVersion "$APP_VERSION" \
-                                    faultMode "$FAULT_MODE" \
-                                    gitBranch "$GIT_BRANCH" \
-                                    gitCommit "$GIT_COMMIT" \
+                                    "artifactUrlB64=$ARTIFACT_URL_B64" \
+                                    "sha256=$SHA256" \
+                                    "releaseId=$RELEASE_ID" \
+                                    "appVersion=$APP_VERSION" \
+                                    "faultMode=$FAULT_MODE" \
+                                    "gitBranch=$GIT_BRANCH" \
+                                    "gitCommit=$GIT_COMMIT" \
                                 --query 'value[].message' \
                                 --output tsv)"
-                            set -x
                             rm -f "$RUN_SCRIPT"
                             printf '%s\n' "$RUN_OUTPUT" > artifacts/run-command.log
                             printf '%s\n' "$RUN_OUTPUT" | grep -F 'HEALDEPLOY_RUN_COMMAND_RESULT=success'
