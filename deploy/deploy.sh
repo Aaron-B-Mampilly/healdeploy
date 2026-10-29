@@ -10,20 +10,23 @@
 # succeeds, so a bad release is never silently accepted.
 #
 # Usage:
-#   deploy.sh <release_id> <app_version> <archive_path> [fault_mode]
+#   deploy.sh <release_id> <app_version> <archive_path> [fault_mode] [git_branch] [git_commit]
 #
 # fault_mode is optional and is written to the release .env as
 # HEALDEPLOY_FAULT for controlled fault-injection evaluation.
+# git_branch and git_commit are recorded in logs for traceability.
 #
 # This script is intended to run as root (invoked through sudo) on the VM.
 # =============================================================================
 
 set -euo pipefail
 
-RELEASE_ID="${1:?usage: deploy.sh <release_id> <app_version> <archive_path> [fault_mode]}"
-APP_VERSION="${2:?usage: deploy.sh <release_id> <app_version> <archive_path> [fault_mode]}"
-ARCHIVE="${3:?usage: deploy.sh <release_id> <app_version> <archive_path> [fault_mode]}"
+RELEASE_ID="${1:?usage: deploy.sh <release_id> <app_version> <archive_path> [fault_mode] [git_branch] [git_commit]}"
+APP_VERSION="${2:?usage: deploy.sh <release_id> <app_version> <archive_path> [fault_mode] [git_branch] [git_commit]}"
+ARCHIVE="${3:?usage: deploy.sh <release_id> <app_version> <archive_path> [fault_mode] [git_branch] [git_commit]}"
 FAULT_MODE="${4:-}"
+GIT_BRANCH="${5:-unknown}"
+GIT_COMMIT="${6:-unknown}"
 
 BASE_DIR="/opt/healdeploy"
 DEPLOY_DIR="$BASE_DIR/deploy"
@@ -167,6 +170,15 @@ if [ -s "$STABLE_FILE" ]; then
     PREVIOUS_STABLE="$(tr -d '[:space:]' < "$STABLE_FILE")"
 fi
 
+log "=============================================="
+log "Deploying release $RELEASE_ID"
+log "  Branch:      $GIT_BRANCH"
+log "  Commit:      $GIT_COMMIT"
+log "  Version:     $APP_VERSION"
+log "  Release ID:  $RELEASE_ID"
+log "  Fault mode:  ${FAULT_MODE:-none}"
+log "=============================================="
+
 log "creating release $RELEASE_ID ($APP_VERSION)"
 if [ -e "$RELEASE_DIR" ]; then
     rm -rf "$RELEASE_DIR"
@@ -174,6 +186,27 @@ fi
 mkdir -p "$RELEASE_DIR"
 tar -xzf "$ARCHIVE" -C "$RELEASE_DIR"
 chown -R healdeploy:healdeploy "$RELEASE_DIR"
+
+# ── Deployment safeguard: verify required dashboard files exist ──
+DASHBOARD_FILES=(
+    "app/app.py"
+    "app/dashboard.py"
+    "app/templates/index.html"
+    "app/static/css/dashboard.css"
+    "app/static/js/dashboard.js"
+)
+MISSING_FILES=0
+for rel_file in "${DASHBOARD_FILES[@]}"; do
+    if [ ! -f "$RELEASE_DIR/$rel_file" ]; then
+        log "ERROR: Required dashboard file missing from release: $rel_file"
+        MISSING_FILES=$((MISSING_FILES + 1))
+    fi
+done
+if [ "$MISSING_FILES" -gt 0 ]; then
+    log "ERROR: $MISSING_FILES required dashboard file(s) missing; aborting deployment to prevent serving old frontend"
+    exit 1
+fi
+log "All required dashboard files verified present in release."
 
 log "creating isolated virtual environment"
 sudo -u healdeploy python3 -m venv "$RELEASE_DIR/.venv"
