@@ -34,8 +34,11 @@ pipeline {
                 checkout scm
                 script {
                     env.GIT_SHA = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                    env.GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    env.GIT_BRANCH = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
                     env.RELEASE_ID = "jenkins-${env.BUILD_NUMBER}-${env.GIT_SHA}"
                     env.APP_VERSION = "v1.0.${env.BUILD_NUMBER}"
+                    echo "Deploying branch=$env.GIT_BRANCH commit=$env.GIT_COMMIT release=$env.RELEASE_ID version=$env.APP_VERSION"
                 }
             }
         }
@@ -116,7 +119,7 @@ pipeline {
                             scp $SCP_OPTS "$ARCHIVE" deploy/deploy.sh deploy/rollback.sh deploy/health_check.py deploy/health_policy.json "$SSH_USER@$VM_HOST:$REMOTE_DIR/"
 
                             set +e
-                            ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "sudo -n install -d -o healdeploy -g healdeploy /opt/healdeploy/deploy && sudo -n install -m 755 $REMOTE_DIR/deploy.sh $REMOTE_DIR/rollback.sh /opt/healdeploy/deploy/ && sudo -n install -m 644 $REMOTE_DIR/health_check.py $REMOTE_DIR/health_policy.json /opt/healdeploy/deploy/ && sudo -n /opt/healdeploy/deploy/deploy.sh '$RELEASE_ID' '$APP_VERSION' '$REMOTE_DIR/$(basename "$ARCHIVE")' '$FAULT_MODE'"
+                            ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "sudo -n install -d -o healdeploy -g healdeploy /opt/healdeploy/deploy && sudo -n install -m 755 $REMOTE_DIR/deploy.sh $REMOTE_DIR/rollback.sh /opt/healdeploy/deploy/ && sudo -n install -m 644 $REMOTE_DIR/health_check.py $REMOTE_DIR/health_policy.json /opt/healdeploy/deploy/ && sudo -n /opt/healdeploy/deploy/deploy.sh '$RELEASE_ID' '$APP_VERSION' '$REMOTE_DIR/$(basename "$ARCHIVE")' '$FAULT_MODE' '$GIT_BRANCH' '$GIT_COMMIT'"
                             DEPLOY_RC=$?
                             set -e
 
