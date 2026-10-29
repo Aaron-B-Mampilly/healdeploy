@@ -23,6 +23,8 @@ Usage (production via Gunicorn on Linux):
 import os
 from flask import Flask, jsonify, render_template
 
+from app.dashboard import build_dashboard_context
+
 
 def create_app(test_config=None):
     """
@@ -46,6 +48,7 @@ def create_app(test_config=None):
     # Read the version from the environment so it can be set at deploy time.
     # The fallback "v1.0.0" is used only when the variable is not set.
     app.config.setdefault("HEALDEPLOY_VERSION", os.environ.get("HEALDEPLOY_VERSION", "v1.0.0"))
+    app.config.setdefault("HEALDEPLOY_ROOT", os.environ.get("HEALDEPLOY_ROOT", "/opt/healdeploy"))
     app.config.setdefault("TESTING", False)
 
     # ── Test configuration override ────────────────────────────────────────
@@ -64,7 +67,13 @@ def create_app(test_config=None):
         tests can override it cleanly.
         """
         version = app.config["HEALDEPLOY_VERSION"]
-        return render_template("index.html", version=version, status="healthy")
+        dashboard = build_dashboard_context(app.config.get("HEALDEPLOY_ROOT"), version)
+        return render_template(
+            "index.html",
+            version=version,
+            status="healthy",
+            dashboard=dashboard,
+        )
 
     @app.route("/health")
     def health():
