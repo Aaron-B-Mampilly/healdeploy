@@ -1,238 +1,423 @@
+{% macro icon(name, size=20) -%}
+<svg class="icon" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {% if name == 'shield-check' %}
+  <path d="M12 3l7 3v5c0 4.4-2.9 8.4-7 9.7-4.1-1.3-7-5.3-7-9.7V6l7-3z" />
+  <path d="M9 12l2 2 4-4" />
+  {% elif name == 'rocket' %}
+  <path d="M14 4c3.5 0 6 2.5 6 6l-3.5 3.5-6-6L14 4z" />
+  <path d="M10.5 7.5L5 9l-1 4 4-1 2.5-4.5z" />
+  <path d="M16.5 13.5L15 19l-4 1 1-4 4.5-2.5z" />
+  <circle cx="15.5" cy="8.5" r="1.5" />
+  {% elif name == 'activity' %}
+  <path d="M3 12h4l2.5-7 4 14 2.5-7H21" />
+  {% elif name == 'rotate' %}
+  <path d="M20 11a8 8 0 1 0-2.3 5.7" />
+  <path d="M20 4v7h-7" />
+  {% elif name == 'alert-triangle' %}
+  <path d="M12 3l9 16H3L12 3z" />
+  <path d="M12 9v4" />
+  <path d="M12 17h.01" />
+  {% elif name == 'alert-circle' %}
+  <circle cx="12" cy="12" r="9" />
+  <path d="M12 8v4" />
+  <path d="M12 16h.01" />
+  {% elif name == 'x-circle' %}
+  <circle cx="12" cy="12" r="9" />
+  <path d="M9 9l6 6M15 9l-6 6" />
+  {% elif name == 'server' %}
+  <rect x="3" y="4" width="18" height="7" rx="2" />
+  <rect x="3" y="13" width="18" height="7" rx="2" />
+  <path d="M7 7.5h.01M7 16.5h.01" />
+  {% elif name == 'terminal' %}
+  <rect x="3" y="4" width="18" height="16" rx="2" />
+  <path d="M7 9l3 3-3 3M13 15h4" />
+  {% elif name == 'git-branch' %}
+  <circle cx="6" cy="6" r="2" />
+  <circle cx="18" cy="18" r="2" />
+  <path d="M6 8v6a4 4 0 0 0 4 4h6" />
+  {% elif name == 'arrow-up-right' %}
+  <path d="M7 17L17 7M8 7h9v9" />
+  {% elif name == 'clock' %}
+  <circle cx="12" cy="12" r="9" />
+  <path d="M12 7v5l3 2" />
+  {% elif name == 'layers' %}
+  <path d="M12 3l9 5-9 5-9-5 9-5z" />
+  <path d="M3 12l9 5 9-5" />
+  <path d="M3 16l9 5 9-5" />
+  {% elif name == 'check' %}
+  <path d="M20 6L9 17l-5-5" />
+  {% endif %}
+</svg>
+{%- endmacro %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="HealDeploy — Self-Healing CI/CD Pipeline Dashboard" />
-  <title>HealDeploy — Self-Healing CI/CD</title>
+  <meta name="description" content="HealDeploy — live release, health policy, and recovery dashboard for the self-healing CI/CD pipeline." />
+  <title>HealDeploy · Delivery Control Plane</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:        #0d1117;
-      --surface:   #161b22;
-      --border:    #30363d;
-      --accent:    #238636;
-      --accent-hi: #2ea043;
-      --blue:      #1f6feb;
-      --text:      #e6edf3;
-      --muted:     #8b949e;
-      --badge-ok:  #1a7f37;
-      --badge-ok-text: #aff3c2;
-      --mono:      'JetBrains Mono', monospace;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1rem;
-    }
-
-    /* ── Header ─────────────────────────────────────────────────────────── */
-    .header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .logo-ring {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--blue));
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 0 32px rgba(35,134,54,.35);
-      animation: pulse 3s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 24px rgba(35,134,54,.3); }
-      50%       { box-shadow: 0 0 48px rgba(35,134,54,.6); }
-    }
-
-    h1 {
-      font-size: 2.4rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #e6edf3 30%, #58a6ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .tagline {
-      color: var(--muted);
-      font-size: .95rem;
-      margin-top: .4rem;
-    }
-
-    /* ── Card ────────────────────────────────────────────────────────────── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 2rem 2.4rem;
-      width: 100%;
-      max-width: 560px;
-      margin-bottom: 1.5rem;
-    }
-
-    .card-title {
-      font-size: .72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--muted);
-      margin-bottom: 1.2rem;
-    }
-
-    /* ── Stat rows ───────────────────────────────────────────────────────── */
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: .75rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .stat-row:last-child { border-bottom: none; }
-
-    .stat-label { color: var(--muted); font-size: .9rem; }
-
-    .stat-value {
-      font-family: var(--mono);
-      font-size: .9rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    /* ── Status badge ────────────────────────────────────────────────────── */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      background: rgba(26,127,55,.2);
-      border: 1px solid rgba(26,127,55,.5);
-      color: var(--badge-ok-text);
-      font-family: var(--mono);
-      font-size: .82rem;
-      font-weight: 600;
-      padding: .25rem .75rem;
-      border-radius: 20px;
-    }
-
-    .badge::before {
-      content: '';
-      width: 7px; height: 7px;
-      background: var(--accent-hi);
-      border-radius: 50%;
-      animation: blink 1.8s ease-in-out infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: .3; }
-    }
-
-    /* ── Health endpoint info ────────────────────────────────────────────── */
-    .endpoint-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.4rem 2rem;
-      width: 100%;
-      max-width: 560px;
-      margin-bottom: 1.5rem;
-    }
-
-    .endpoint-url {
-      font-family: var(--mono);
-      font-size: .85rem;
-      color: #58a6ff;
-      margin-bottom: .8rem;
-    }
-
-    .json-block {
-      background: #0d1117;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: .9rem 1.1rem;
-      font-family: var(--mono);
-      font-size: .82rem;
-      line-height: 1.6;
-      color: #aff3c2;
-    }
-
-    /* ── Footer ──────────────────────────────────────────────────────────── */
-    footer {
-      color: var(--muted);
-      font-size: .78rem;
-      text-align: center;
-      margin-top: .5rem;
-    }
-
-    footer a { color: #58a6ff; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-  </style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <div class="header">
-    <div class="logo-ring">⚙</div>
-    <h1>HealDeploy</h1>
-    <p class="tagline">Self-Healing CI/CD Pipeline · DevOps IA3</p>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="HealDeploy home">
+        <span class="brand-mark">{{ icon('layers', 22) }}</span>
+        <span class="brand-copy">
+          <strong>HealDeploy</strong>
+          <small>Self-healing delivery</small>
+        </span>
+      </a>
+
+      <nav class="topnav" aria-label="Dashboard sections">
+        <a href="#overview">Overview</a>
+        <a href="#activity">Activity</a>
+        <a href="#health">Health</a>
+        <a href="{{ dashboard.repo_url }}" target="_blank" rel="noreferrer">
+          GitHub {{ icon('arrow-up-right', 13) }}
+        </a>
+      </nav>
+
+      <div class="topbar-status">
+        <span class="status-pill is-{{ dashboard.status_class }}" aria-label="Application status: {{ status }}">
+          <span class="status-dot"></span>{{ status }}
+        </span>
+        <span class="env-badge">{{ dashboard.environment.label }}</span>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="overview">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Delivery control plane</p>
+          <h1>Ship with confidence.<br /><span>Recover without drama.</span></h1>
+          <p class="hero-lede">
+            A live view of the HealDeploy release pipeline, health policy, and rollback recovery,
+            powered by the same artifacts Jenkins writes during every deployment.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#activity">{{ icon('activity', 16) }} View deployment activity</a>
+            <a class="button button-ghost" href="{{ dashboard.repo_url }}" target="_blank" rel="noreferrer">
+              Open repository {{ icon('arrow-up-right', 15) }}
+            </a>
+          </div>
+        </div>
+
+        <article class="hero-status-card" aria-label="Application health summary">
+          <div class="hero-status-head">
+            <span class="section-kicker">Application health</span>
+            <span class="status-pill is-{{ dashboard.status_class }}">
+              <span class="status-dot"></span>{{ status }}
+            </span>
+          </div>
+          <div class="hero-status-main">
+            <span class="hero-status-icon">{{ icon('shield-check', 30) }}</span>
+            <div>
+              <p class="hero-status-label">Serving</p>
+              <p class="hero-status-version">{{ version }}</p>
+              <p class="hero-status-meta">{{ dashboard.environment.platform }} · Python {{ dashboard.environment.python }}</p>
+            </div>
+          </div>
+          <div class="hero-status-foot">
+            <span><code>GET /health</code></span>
+            <span class="http-chip">HTTP 200</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="metric-grid" aria-label="Release summary">
+        {% set active = dashboard.active_release %}
+        <article class="metric-card accent-{{ 'success' if active.is_stable else ('warning' if active.release_id else 'neutral') }}">
+          <div class="metric-head">
+            <span class="metric-icon">{{ icon('rocket', 18) }}</span>
+            <span class="metric-label">Active release</span>
+          </div>
+          <p class="metric-value">{{ active.release_id or 'Local preview' }}</p>
+          <p class="metric-meta">
+            {% if active.release_id %}
+              {{ active.version }}
+              {% if active.is_stable %}
+              <span class="mini-badge is-success">Stable</span>
+              {% else %}
+              <span class="mini-badge is-warning">Not stable</span>
+              {% endif %}
+            {% else %}
+              {{ version }} · no deployment root
+            {% endif %}
+          </p>
+          <div class="metric-foot">
+            {% if active.stable_release_id %}
+            <span>Stable anchor</span><code>{{ active.stable_release_id }}</code>
+            {% else %}
+            <span>Stable anchor unavailable</span>
+            {% endif %}
+          </div>
+        </article>
+
+        <article class="metric-card accent-success">
+          <div class="metric-head">
+            <span class="metric-icon">{{ icon('shield-check', 18) }}</span>
+            <span class="metric-label">Application health</span>
+          </div>
+          <p class="metric-value">{{ status|capitalize }}</p>
+          <p class="metric-meta">
+            {{ version }}
+            <span class="mini-badge is-success">HTTP 200</span>
+          </p>
+          <div class="metric-foot">
+            <span><code>GET /health</code></span>
+            <span>Served by this application</span>
+          </div>
+        </article>
+
+        {% set deploy = dashboard.latest_deployment %}
+        <article class="metric-card accent-{{ deploy.status if deploy else 'neutral' }}">
+          <div class="metric-head">
+            <span class="metric-icon">{{ icon(deploy.icon if deploy else 'clock', 18) }}</span>
+            <span class="metric-label">Latest deployment</span>
+          </div>
+          {% if deploy %}
+          <p class="metric-value">{{ deploy.event_label|replace('Release ', '') }}</p>
+          <p class="metric-meta">
+            <code>{{ deploy.release_id }}</code>
+            {% if deploy.version %}<span>{{ deploy.version }}</span>{% endif %}
+          </p>
+          <div class="metric-foot">
+            <span>{{ deploy.timestamp }}</span>
+            <span>{{ deploy.detail }}</span>
+          </div>
+          {% else %}
+          <p class="metric-value">No record</p>
+          <p class="metric-meta">Deployment artifacts unavailable</p>
+          <div class="metric-foot"><span>Run the Jenkins job to populate this card</span></div>
+          {% endif %}
+        </article>
+
+        {% set recovery = dashboard.latest_recovery %}
+        <article class="metric-card accent-{{ recovery.status_class if recovery else 'neutral' }}">
+          <div class="metric-head">
+            <span class="metric-icon">{{ icon(recovery.icon if recovery else 'clock', 18) }}</span>
+            <span class="metric-label">Latest recovery</span>
+          </div>
+          {% if recovery %}
+          <p class="metric-value">{{ recovery.status_label }}</p>
+          <p class="metric-meta">
+            {% if recovery.recovered_release %}
+            <code>{{ recovery.recovered_release }}</code>
+            {% if recovery.recovered_version %}<span>{{ recovery.recovered_version }}</span>{% endif %}
+            {% else %}
+            <code>{{ recovery.release_id or 'release unavailable' }}</code>
+            {% endif %}
+          </p>
+          <div class="metric-foot">
+            <span>
+              {% if recovery.recovery_completed_at %}Completed {{ recovery.recovery_completed_at }}
+              {% elif recovery.detected_at %}Detected {{ recovery.detected_at }}
+              {% else %}Timestamp unavailable{% endif %}
+            </span>
+            {% if recovery.duration %}<span>Recovery window {{ recovery.duration }}</span>{% endif %}
+          </div>
+          {% else %}
+          <p class="metric-value">No incident</p>
+          <p class="metric-meta">No recovery record in this environment</p>
+          <div class="metric-foot"><span>Recovery data appears after a rollback</span></div>
+          {% endif %}
+        </article>
+      </section>
+
+      <section class="content-grid" id="activity">
+        <article class="panel timeline-panel">
+          <header class="panel-head">
+            <div>
+              <p class="section-kicker">Release history</p>
+              <h2>Deployment activity</h2>
+            </div>
+            {% if dashboard.history_available %}
+            <span class="count-badge">{{ dashboard.timeline_total }} recorded event{{ '' if dashboard.timeline_total == 1 else 's' }}</span>
+            {% endif %}
+          </header>
+
+          {% if dashboard.timeline %}
+          <ol class="timeline">
+            {% for event in dashboard.timeline %}
+            <li class="timeline-item">
+              <span class="timeline-marker is-{{ event.status }}">{{ icon(event.icon, 17) }}</span>
+              <div class="timeline-content">
+                <div class="timeline-row">
+                  <span class="timeline-label">{{ event.event_label }}</span>
+                  <time class="timeline-time" {% if event.timestamp_iso %}datetime="{{ event.timestamp_iso }}"{% endif %}>{{ event.timestamp }}</time>
+                </div>
+                <div class="timeline-release">
+                  <code>{{ event.release_id or 'release unavailable' }}</code>
+                  {% if event.version %}<span class="version-chip">{{ event.version }}</span>{% endif %}
+                </div>
+                <p class="timeline-detail">{{ event.detail }}</p>
+              </div>
+            </li>
+            {% endfor %}
+          </ol>
+          {% else %}
+          <div class="empty-state">
+            <span class="empty-icon">{{ icon('terminal', 26) }}</span>
+            <h3>No deployment history in this environment</h3>
+            <p>
+              This dashboard reads real artifacts from <code>/opt/healdeploy/shared</code>.
+              Run a deployment through Jenkins or point <code>HEALDEPLOY_ROOT</code> at a
+              deployment directory to populate the timeline.
+            </p>
+            <p class="empty-note">Jenkins job: <code>{{ dashboard.jenkins_job }}</code></p>
+          </div>
+          {% endif %}
+
+          <footer class="panel-foot">
+            <span>Source: {{ dashboard.history_source or 'Deployment artifacts unavailable' }}</span>
+            {% if dashboard.latest_deployment %}
+            <span>Latest health policy check: {{ dashboard.latest_deployment.timestamp }}</span>
+            {% endif %}
+          </footer>
+        </article>
+
+        <aside class="side-stack" aria-label="Release and environment details">
+          <article class="panel">
+            <header class="panel-head">
+              <div>
+                <p class="section-kicker">Runtime</p>
+                <h2>Active release</h2>
+              </div>
+              <span class="panel-icon">{{ icon('git-branch', 18) }}</span>
+            </header>
+            <dl class="detail-list">
+              <div>
+                <dt>Release</dt>
+                <dd><code>{{ active.release_id or '—' }}</code></dd>
+              </div>
+              <div>
+                <dt>Version</dt>
+                <dd>{{ active.version }}</dd>
+              </div>
+              <div>
+                <dt>Stable anchor</dt>
+                <dd>
+                  {% if dashboard.stable_release.release_id %}
+                  <code>{{ dashboard.stable_release.release_id }}</code>
+                  {% if dashboard.stable_release.version %}<span class="detail-sub">{{ dashboard.stable_release.version }}</span>{% endif %}
+                  {% else %}
+                  <span class="muted">Unavailable</span>
+                  {% endif %}
+                </dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd>
+                  {% if active.is_stable %}
+                  <span class="mini-badge is-success">Stable</span>
+                  {% elif active.release_id %}
+                  <span class="mini-badge is-warning">Active</span>
+                  {% else %}
+                  <span class="muted">Not deployed</span>
+                  {% endif %}
+                </dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <div>
+                <p class="section-kicker">Platform</p>
+                <h2>Environment</h2>
+              </div>
+              <span class="panel-icon">{{ icon('server', 18) }}</span>
+            </header>
+            <dl class="detail-list">
+              <div>
+                <dt>Environment</dt>
+                <dd>{{ dashboard.environment.label }}</dd>
+              </div>
+              <div>
+                <dt>Platform</dt>
+                <dd>{{ dashboard.environment.platform }}</dd>
+              </div>
+              <div>
+                <dt>Runtime</dt>
+                <dd>
+                  Python {{ dashboard.environment.python }}
+                  {% if dashboard.environment.flask %} · Flask {{ dashboard.environment.flask }}{% endif %}
+                </dd>
+              </div>
+              <div>
+                <dt>Service</dt>
+                <dd>{{ dashboard.environment.service or 'Not applicable' }}</dd>
+              </div>
+            </dl>
+            <p class="environment-note">Version controlled by <code>HEALDEPLOY_VERSION</code></p>
+          </article>
+        </aside>
+      </section>
+
+      <section class="health-section" id="health">
+        <article class="panel health-panel">
+          <header class="panel-head">
+            <div>
+              <p class="section-kicker">Contract</p>
+              <h2>Health endpoint</h2>
+            </div>
+            <span class="http-badge">HTTP 200</span>
+          </header>
+          <div class="health-grid">
+            <div class="health-copy">
+              <p>
+                Jenkins uses this endpoint to gate every release. A non-200 response, an unexpected
+                status, or a version mismatch fails the health policy and triggers automatic rollback.
+              </p>
+              <dl class="contract-list">
+                <div>
+                  <dt>Path</dt>
+                  <dd><code>GET /health</code></dd>
+                </div>
+                <div>
+                  <dt>Status</dt>
+                  <dd><span class="status-inline is-success">healthy</span></dd>
+                </div>
+                <div>
+                  <dt>Version</dt>
+                  <dd><code>{{ version }}</code></dd>
+                </div>
+                <div>
+                  <dt>Content type</dt>
+                  <dd><code>application/json</code></dd>
+                </div>
+              </dl>
+            </div>
+            <div class="code-card">
+              <div class="code-head">
+                <span><span class="code-method">GET</span> /health</span>
+                <button class="copy-button" type="button" data-copy-target="health-json">Copy</button>
+              </div>
+              <pre id="health-json">{{ dashboard.health_json }}</pre>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p><strong>HealDeploy</strong> · Self-healing CI/CD pipeline</p>
+      <p>
+        <a href="{{ dashboard.repo_url }}" target="_blank" rel="noreferrer">GitHub {{ icon('arrow-up-right', 13) }}</a>
+        <span class="footer-sep">·</span>
+        <span>Jenkins job <code>{{ dashboard.jenkins_job }}</code></span>
+        <span class="footer-sep">·</span>
+        <span>Rendered {{ dashboard.generated_at }}</span>
+      </p>
+    </footer>
   </div>
 
-  <!-- Application status card -->
-  <div class="card">
-    <div class="card-title">Application Status</div>
-
-    <div class="stat-row">
-      <span class="stat-label">Project</span>
-      <span class="stat-value">HealDeploy</span>
-    </div>
-
-    <div class="stat-row">
-      <span class="stat-label">Version</span>
-      <span class="stat-value">{{ version }}</span>
-    </div>
-
-    <div class="stat-row">
-      <span class="stat-label">Health</span>
-      <span class="badge">{{ status }}</span>
-    </div>
-
-    <div class="stat-row">
-      <span class="stat-label">Environment</span>
-      <span class="stat-value">Python 3.10 · Flask 3.1</span>
-    </div>
-  </div>
-
-  <!-- Health endpoint info -->
-  <div class="endpoint-card">
-    <div class="card-title">Health Endpoint</div>
-    <div class="endpoint-url">GET /health</div>
-    <div class="json-block">
-{<br>
-&nbsp;&nbsp;"status": "{{ status }}",<br>
-&nbsp;&nbsp;"version": "{{ version }}"<br>
-}
-    </div>
-  </div>
-
-  <footer>
-    HealDeploy · <a href="https://github.com/Aaron-B-Mampilly/healdeploy" target="_blank">GitHub</a> ·
-    Version controlled via <code>HEALDEPLOY_VERSION</code> env var
-  </footer>
-
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
 </body>
 </html>
