@@ -22,7 +22,7 @@ pipeline {
 
     environment {
         VM_HOST = '20.205.103.245'
-        SSH_PORT = '22'
+        SSH_PORT = '443'
         APP_NAME = 'healdeploy'
         SSH_CREDENTIALS_ID = 'healdeploy-ssh-key'
         KNOWN_HOSTS = '/var/jenkins_home/.ssh/known_hosts'
