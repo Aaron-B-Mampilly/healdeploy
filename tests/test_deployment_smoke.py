@@ -169,12 +169,12 @@ class TestRollbackReadiness:
 
 
 class TestJenkinsfileSSHConfiguration:
-    """SSH must use port 443 with lowercase -p; SCP must use uppercase -P."""
+    """SSH must use port 22 with lowercase -p; SCP must use uppercase -P."""
 
-    def test_jenkinsfile_ssh_port_443(self):
+    def test_jenkinsfile_ssh_port_22(self):
         jenkinsfile = Path("Jenkinsfile").read_text(encoding="utf-8")
-        assert "SSH_PORT = '443'" in jenkinsfile, (
-            "Jenkinsfile must set SSH_PORT = '443'"
+        assert "SSH_PORT = '22'" in jenkinsfile, (
+            "Jenkinsfile must set SSH_PORT = '22'"
         )
         assert '-p $SSH_PORT' in jenkinsfile, (
             "Jenkinsfile SSH_OPTS must use lowercase -p for SSH port"

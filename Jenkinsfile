@@ -22,7 +22,7 @@ pipeline {
 
     environment {
         VM_HOST = '20.205.103.245'
-        SSH_PORT = '443'
+        SSH_PORT = '22'
         APP_NAME = 'healdeploy'
         SSH_CREDENTIALS_ID = 'healdeploy-ssh-key'
         KNOWN_HOSTS = '/var/jenkins_home/.ssh/known_hosts'
@@ -94,6 +94,26 @@ pipeline {
             }
         }
 
+        stage('SSH Connectivity Preflight') {
+            steps {
+                script {
+                    withCredentials([
+                        sshUserPrivateKey(
+                            credentialsId: env.SSH_CREDENTIALS_ID,
+                            keyFileVariable: 'SSH_KEY',
+                            usernameVariable: 'SSH_USER'
+                        )
+                    ]) {
+                        sh '''
+                            set -eu
+                            SSH_OPTS="-p $SSH_PORT -i $SSH_KEY -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
+                            ssh $SSH_OPTS "$SSH_USER@$VM_HOST" "printf '%s\\n' ssh-preflight-ok"
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Deploy and Verify') {
             steps {
                 script {
@@ -109,8 +129,8 @@ pipeline {
                             FAULT_MODE="${FAULT_MODE:-}"
                             ARCHIVE="$(cat build/archive-path.txt)"
                             REMOTE_DIR="/tmp/healdeploy-${BUILD_NUMBER}"
-                            SSH_OPTS="-p $SSH_PORT -i $SSH_KEY -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
-                            SCP_OPTS="-P $SSH_PORT -i $SSH_KEY -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
+                            SSH_OPTS="-p $SSH_PORT -i $SSH_KEY -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
+                            SCP_OPTS="-P $SSH_PORT -i $SSH_KEY -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o ConnectTimeout=20"
 
                             rm -rf artifacts
                             mkdir -p artifacts
